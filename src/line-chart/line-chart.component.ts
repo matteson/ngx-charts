@@ -122,6 +122,8 @@ export class LineChartComponent extends BaseChartComponent {
   @Input() yAxis;
   @Input() showXAxisLabel;
   @Input() showYAxisLabel;
+  @Input() yDomainMin;
+  @Input() yDomainMax;
   @Input() xAxisLabel;
   @Input() yAxisLabel;
   @Input() xAxisTransform;
@@ -288,12 +290,19 @@ export class LineChartComponent extends BaseChartComponent {
     }
 
     let min = Math.min(...domain);
-    const max = Math.max(...domain);
+    let max = Math.max(...domain);
     if (!this.autoScale) {
       min = Math.min(0, min);
     }
 
-    return [min, max];
+    if ( typeof(this.yDomainMin) != "undefined") {
+      min = this.yDomainMin;
+    }
+    if ( typeof(this.yDomainMax) != "undefined") {
+      max = this.yDomainMax;
+    }
+
+      return [min, max];
   }
 
   getSeriesDomain(): any[] {
