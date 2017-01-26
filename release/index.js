@@ -10208,6 +10208,12 @@ var LineChartComponent = (function (_super) {
         if (!this.autoScale) {
             min = Math.min(0, min);
         }
+        if (typeof (this.yDomainMin) != "undefined") {
+            min = this.yDomainMin;
+        }
+        if (typeof (this.yDomainMax) != "undefined") {
+            max = this.yDomainMax;
+        }
         return [min, max];
     };
     LineChartComponent.prototype.getSeriesDomain = function () {
@@ -10389,6 +10395,14 @@ var LineChartComponent = (function (_super) {
         core_1.Input(), 
         __metadata('design:type', Object)
     ], LineChartComponent.prototype, "showYAxisLabel", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], LineChartComponent.prototype, "yDomainMin", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], LineChartComponent.prototype, "yDomainMax", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)

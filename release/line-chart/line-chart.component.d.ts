@@ -8,6 +8,8 @@ export declare class LineChartComponent extends BaseChartComponent {
     yAxis: any;
     showXAxisLabel: any;
     showYAxisLabel: any;
+    yDomainMin: any;
+    yDomainMax: any;
     xAxisLabel: any;
     yAxisLabel: any;
     xAxisTransform: any;

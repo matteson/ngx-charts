@@ -139,6 +139,12 @@ var LineChartComponent = (function (_super) {
         if (!this.autoScale) {
             min = Math.min(0, min);
         }
+        if (typeof (this.yDomainMin) != "undefined") {
+            min = this.yDomainMin;
+        }
+        if (typeof (this.yDomainMax) != "undefined") {
+            max = this.yDomainMax;
+        }
         return [min, max];
     };
     LineChartComponent.prototype.getSeriesDomain = function () {
@@ -315,6 +321,8 @@ var LineChartComponent = (function (_super) {
         'yAxis': [{ type: core_1.Input },],
         'showXAxisLabel': [{ type: core_1.Input },],
         'showYAxisLabel': [{ type: core_1.Input },],
+        'yDomainMin': [{ type: core_1.Input },],
+        'yDomainMax': [{ type: core_1.Input },],
         'xAxisLabel': [{ type: core_1.Input },],
         'yAxisLabel': [{ type: core_1.Input },],
         'xAxisTransform': [{ type: core_1.Input },],

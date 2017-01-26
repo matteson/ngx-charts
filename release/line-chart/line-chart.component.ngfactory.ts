@@ -66,6 +66,8 @@ export class Wrapper_LineChartComponent {
   /*private*/ _expr_18:any;
   /*private*/ _expr_19:any;
   /*private*/ _expr_20:any;
+  /*private*/ _expr_21:any;
+  /*private*/ _expr_22:any;
   subscription0:any;
   subscription1:any;
   subscription2:any;
@@ -94,6 +96,8 @@ export class Wrapper_LineChartComponent {
     this._expr_18 = import1.UNINITIALIZED;
     this._expr_19 = import1.UNINITIALIZED;
     this._expr_20 = import1.UNINITIALIZED;
+    this._expr_21 = import1.UNINITIALIZED;
+    this._expr_22 = import1.UNINITIALIZED;
   }
   ngOnDetach(view:import2.AppView<any>,componentView:import2.AppView<any>,el:any):void {
   }
@@ -183,92 +187,108 @@ export class Wrapper_LineChartComponent {
       this._expr_9 = currValue;
     }
   }
-  check_xAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_yDomainMin(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_10,currValue))) {
       this._changed = true;
-      this.context.xAxisLabel = currValue;
-      this._changes['xAxisLabel'] = new import1.SimpleChange(this._expr_10,currValue);
+      this.context.yDomainMin = currValue;
+      this._changes['yDomainMin'] = new import1.SimpleChange(this._expr_10,currValue);
       this._expr_10 = currValue;
     }
   }
-  check_yAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_yDomainMax(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_11,currValue))) {
       this._changed = true;
-      this.context.yAxisLabel = currValue;
-      this._changes['yAxisLabel'] = new import1.SimpleChange(this._expr_11,currValue);
+      this.context.yDomainMax = currValue;
+      this._changes['yDomainMax'] = new import1.SimpleChange(this._expr_11,currValue);
       this._expr_11 = currValue;
     }
   }
-  check_xAxisTransform(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_xAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_12,currValue))) {
       this._changed = true;
-      this.context.xAxisTransform = currValue;
-      this._changes['xAxisTransform'] = new import1.SimpleChange(this._expr_12,currValue);
+      this.context.xAxisLabel = currValue;
+      this._changes['xAxisLabel'] = new import1.SimpleChange(this._expr_12,currValue);
       this._expr_12 = currValue;
     }
   }
-  check_yAxisTransform(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_yAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_13,currValue))) {
       this._changed = true;
-      this.context.yAxisTransform = currValue;
-      this._changes['yAxisTransform'] = new import1.SimpleChange(this._expr_13,currValue);
+      this.context.yAxisLabel = currValue;
+      this._changes['yAxisLabel'] = new import1.SimpleChange(this._expr_13,currValue);
       this._expr_13 = currValue;
     }
   }
-  check_autoScale(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_xAxisTransform(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_14,currValue))) {
       this._changed = true;
-      this.context.autoScale = currValue;
-      this._changes['autoScale'] = new import1.SimpleChange(this._expr_14,currValue);
+      this.context.xAxisTransform = currValue;
+      this._changes['xAxisTransform'] = new import1.SimpleChange(this._expr_14,currValue);
       this._expr_14 = currValue;
     }
   }
-  check_timeline(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_yAxisTransform(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_15,currValue))) {
       this._changed = true;
-      this.context.timeline = currValue;
-      this._changes['timeline'] = new import1.SimpleChange(this._expr_15,currValue);
+      this.context.yAxisTransform = currValue;
+      this._changes['yAxisTransform'] = new import1.SimpleChange(this._expr_15,currValue);
       this._expr_15 = currValue;
     }
   }
-  check_gradient(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_autoScale(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_16,currValue))) {
       this._changed = true;
-      this.context.gradient = currValue;
-      this._changes['gradient'] = new import1.SimpleChange(this._expr_16,currValue);
+      this.context.autoScale = currValue;
+      this._changes['autoScale'] = new import1.SimpleChange(this._expr_16,currValue);
       this._expr_16 = currValue;
     }
   }
-  check_showGridLines(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_timeline(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_17,currValue))) {
       this._changed = true;
-      this.context.showGridLines = currValue;
-      this._changes['showGridLines'] = new import1.SimpleChange(this._expr_17,currValue);
+      this.context.timeline = currValue;
+      this._changes['timeline'] = new import1.SimpleChange(this._expr_17,currValue);
       this._expr_17 = currValue;
     }
   }
-  check_curve(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_gradient(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_18,currValue))) {
       this._changed = true;
-      this.context.curve = currValue;
-      this._changes['curve'] = new import1.SimpleChange(this._expr_18,currValue);
+      this.context.gradient = currValue;
+      this._changes['gradient'] = new import1.SimpleChange(this._expr_18,currValue);
       this._expr_18 = currValue;
     }
   }
-  check_activeEntries(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_showGridLines(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_19,currValue))) {
       this._changed = true;
-      this.context.activeEntries = currValue;
-      this._changes['activeEntries'] = new import1.SimpleChange(this._expr_19,currValue);
+      this.context.showGridLines = currValue;
+      this._changes['showGridLines'] = new import1.SimpleChange(this._expr_19,currValue);
       this._expr_19 = currValue;
     }
   }
-  check_rangeFillOpacity(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_curve(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_20,currValue))) {
       this._changed = true;
-      this.context.rangeFillOpacity = currValue;
-      this._changes['rangeFillOpacity'] = new import1.SimpleChange(this._expr_20,currValue);
+      this.context.curve = currValue;
+      this._changes['curve'] = new import1.SimpleChange(this._expr_20,currValue);
       this._expr_20 = currValue;
+    }
+  }
+  check_activeEntries(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+    if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_21,currValue))) {
+      this._changed = true;
+      this.context.activeEntries = currValue;
+      this._changes['activeEntries'] = new import1.SimpleChange(this._expr_21,currValue);
+      this._expr_21 = currValue;
+    }
+  }
+  check_rangeFillOpacity(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+    if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_22,currValue))) {
+      this._changed = true;
+      this.context.rangeFillOpacity = currValue;
+      this._changes['rangeFillOpacity'] = new import1.SimpleChange(this._expr_22,currValue);
+      this._expr_22 = currValue;
     }
   }
   ngDoCheck(view:import2.AppView<any>,el:any,throwOnChange:boolean):boolean {
