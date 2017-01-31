@@ -212,6 +212,8 @@ import './demo.scss';
             [xAxis]="showXAxis"
             [yAxis]="showYAxis"
             [yAxisTransform]="yAxisTransform"
+            [yDomainMax]="yDomainMax"
+            [yDomainMin]="yDomainMin"
             [showXAxisLabel]="showXAxisLabel"
             [showYAxisLabel]="showYAxisLabel"
             [xAxisLabel]="xAxisLabel"
@@ -581,6 +583,17 @@ import './demo.scss';
               </option>
             </select>
           </div>
+          
+          <div *ngIf="chart.options.includes('yDomainMin')">
+            <label>Domain Limits</label>
+            <input type="checkbox" [checked]="domainLimits" (change)="toggleDomainLimits($event.target.checked)">
+            <label>Y axis min:</label><br />
+            <input type="number" [(ngModel)]="_yDomainMin"><br />
+          </div>
+          <div *ngIf="chart.options.includes('yDomainMax')">
+            <label>Y axis max:</label><br />
+            <input type="number" [(ngModel)]="_yDomainMax"><br />
+          </div>
 
           <div *ngIf="chart.options.includes('min')">
             <label>Min value:</label><br />
@@ -674,6 +687,7 @@ export class AppComponent implements OnInit {
   width: number = 700;
   height: number = 300;
   fitContainer: boolean = false;
+  domainLimits: boolean = false;
 
   // options
   showXAxis = true;
@@ -685,6 +699,11 @@ export class AppComponent implements OnInit {
   showYAxisLabel = true;
   yAxisLabel = 'GDP Per Capita';
   showGridLines = true;
+
+  _yDomainMin = 1000;
+  _yDomainMax = 10000;
+  yDomainMin: any;
+  yDomainMax: any;
 
   // axis transforms
   yAxisTransform = 'linear';
@@ -850,6 +869,23 @@ export class AppComponent implements OnInit {
       this.view = undefined;
     } else {
       this.applyDimensions();
+    }
+  }
+
+  applyDomainLimits(event) {
+    this.yDomainMin = this._yDomainMin;
+    this.yDomainMax = this._yDomainMax;
+  }
+
+  toggleDomainLimits(event) {
+    this.domainLimits = event;
+
+    if (!this.domainLimits) {
+      this.yDomainMax = undefined;
+      this.yDomainMin = undefined;
+    } else {
+      this.yDomainMax = this._yDomainMax;
+      this.yDomainMin = this._yDomainMin;
     }
   }
 
