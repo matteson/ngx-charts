@@ -52,6 +52,8 @@ export class Wrapper_HeatMapComponent {
   /*private*/ _expr_10:any;
   /*private*/ _expr_11:any;
   /*private*/ _expr_12:any;
+  /*private*/ _expr_13:any;
+  /*private*/ _expr_14:any;
   subscription0:any;
   constructor(p0:any,p1:any,p2:any,p3:any) {
     this._changed = false;
@@ -70,6 +72,8 @@ export class Wrapper_HeatMapComponent {
     this._expr_10 = import1.UNINITIALIZED;
     this._expr_11 = import1.UNINITIALIZED;
     this._expr_12 = import1.UNINITIALIZED;
+    this._expr_13 = import1.UNINITIALIZED;
+    this._expr_14 = import1.UNINITIALIZED;
   }
   ngOnDetach(view:import2.AppView<any>,componentView:import2.AppView<any>,el:any):void {
   }
@@ -149,36 +153,52 @@ export class Wrapper_HeatMapComponent {
       this._expr_8 = currValue;
     }
   }
-  check_showYAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_yDomainMin(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_9,currValue))) {
       this._changed = true;
-      this.context.showYAxisLabel = currValue;
-      this._changes['showYAxisLabel'] = new import1.SimpleChange(this._expr_9,currValue);
+      this.context.yDomainMin = currValue;
+      this._changes['yDomainMin'] = new import1.SimpleChange(this._expr_9,currValue);
       this._expr_9 = currValue;
     }
   }
-  check_xAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_yDomainMax(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_10,currValue))) {
       this._changed = true;
-      this.context.xAxisLabel = currValue;
-      this._changes['xAxisLabel'] = new import1.SimpleChange(this._expr_10,currValue);
+      this.context.yDomainMax = currValue;
+      this._changes['yDomainMax'] = new import1.SimpleChange(this._expr_10,currValue);
       this._expr_10 = currValue;
     }
   }
-  check_yAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_showYAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_11,currValue))) {
       this._changed = true;
-      this.context.yAxisLabel = currValue;
-      this._changes['yAxisLabel'] = new import1.SimpleChange(this._expr_11,currValue);
+      this.context.showYAxisLabel = currValue;
+      this._changes['showYAxisLabel'] = new import1.SimpleChange(this._expr_11,currValue);
       this._expr_11 = currValue;
     }
   }
-  check_gradient(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+  check_xAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
     if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_12,currValue))) {
       this._changed = true;
-      this.context.gradient = currValue;
-      this._changes['gradient'] = new import1.SimpleChange(this._expr_12,currValue);
+      this.context.xAxisLabel = currValue;
+      this._changes['xAxisLabel'] = new import1.SimpleChange(this._expr_12,currValue);
       this._expr_12 = currValue;
+    }
+  }
+  check_yAxisLabel(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+    if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_13,currValue))) {
+      this._changed = true;
+      this.context.yAxisLabel = currValue;
+      this._changes['yAxisLabel'] = new import1.SimpleChange(this._expr_13,currValue);
+      this._expr_13 = currValue;
+    }
+  }
+  check_gradient(currValue:any,throwOnChange:boolean,forceUpdate:boolean):void {
+    if ((forceUpdate || import3.checkBinding(throwOnChange,this._expr_14,currValue))) {
+      this._changed = true;
+      this.context.gradient = currValue;
+      this._changes['gradient'] = new import1.SimpleChange(this._expr_14,currValue);
+      this._expr_14 = currValue;
     }
   }
   ngDoCheck(view:import2.AppView<any>,el:any,throwOnChange:boolean):boolean {

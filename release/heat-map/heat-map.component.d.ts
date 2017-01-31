@@ -6,6 +6,8 @@ export declare class HeatMapComponent extends BaseChartComponent {
     xAxis: any;
     yAxis: any;
     showXAxisLabel: any;
+    yDomainMin: any;
+    yDomainMax: any;
     showYAxisLabel: any;
     xAxisLabel: any;
     yAxisLabel: any;

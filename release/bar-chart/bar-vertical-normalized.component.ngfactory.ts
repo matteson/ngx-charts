@@ -528,7 +528,7 @@ class View_BarVerticalNormalizedComponent3 extends import2.AppView<any> {
     return result;
   }
 }
-var renderType_BarVerticalNormalizedComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarVerticalNormalizedComponent,{animationState: BarVerticalNormalizedComponent_animationState_factory});
+var renderType_BarVerticalNormalizedComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarVerticalNormalizedComponent,{'animationState': BarVerticalNormalizedComponent_animationState_factory});
 export class View_BarVerticalNormalizedComponent0 extends import2.AppView<import0.BarVerticalNormalizedComponent> {
   _text_0:any;
   _el_1:any;

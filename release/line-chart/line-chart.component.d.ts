@@ -8,8 +8,12 @@ export declare class LineChartComponent extends BaseChartComponent {
     yAxis: any;
     showXAxisLabel: any;
     showYAxisLabel: any;
+    yDomainMin: any;
+    yDomainMax: any;
     xAxisLabel: any;
     yAxisLabel: any;
+    xAxisTransform: any;
+    yAxisTransform: any;
     autoScale: any;
     timeline: any;
     gradient: boolean;
@@ -28,7 +32,8 @@ export declare class LineChartComponent extends BaseChartComponent {
     yScale: any;
     xScale: any;
     colors: ColorHelper;
-    scaleType: string;
+    xScaleType: string;
+    yScaleType: string;
     transform: string;
     clipPath: string;
     clipPathId: string;
@@ -54,7 +59,8 @@ export declare class LineChartComponent extends BaseChartComponent {
     getSeriesDomain(): any[];
     getXScale(domain: any, width: any): any;
     getYScale(domain: any, height: any): any;
-    getScaleType(values: any): string;
+    getXScaleType(values: any): string;
+    getYScaleType(): string;
     isDate(value: any): boolean;
     updateDomain(domain: any): void;
     updateHoveredVertical(item: any): void;

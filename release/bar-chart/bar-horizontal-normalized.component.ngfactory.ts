@@ -528,7 +528,7 @@ class View_BarHorizontalNormalizedComponent3 extends import2.AppView<any> {
     return result;
   }
 }
-var renderType_BarHorizontalNormalizedComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarHorizontalNormalizedComponent,{animationState: BarHorizontalNormalizedComponent_animationState_factory});
+var renderType_BarHorizontalNormalizedComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarHorizontalNormalizedComponent,{'animationState': BarHorizontalNormalizedComponent_animationState_factory});
 export class View_BarHorizontalNormalizedComponent0 extends import2.AppView<import0.BarHorizontalNormalizedComponent> {
   _text_0:any;
   _el_1:any;

@@ -526,7 +526,7 @@ class View_BarVertical2DComponent3 extends import2.AppView<any> {
     return result;
   }
 }
-var renderType_BarVertical2DComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarVertical2DComponent,{animationState: BarVertical2DComponent_animationState_factory});
+var renderType_BarVertical2DComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarVertical2DComponent,{'animationState': BarVertical2DComponent_animationState_factory});
 export class View_BarVertical2DComponent0 extends import2.AppView<import0.BarVertical2DComponent> {
   _text_0:any;
   _el_1:any;

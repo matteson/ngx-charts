@@ -528,7 +528,7 @@ class View_BarHorizontalStackedComponent3 extends import2.AppView<any> {
     return result;
   }
 }
-var renderType_BarHorizontalStackedComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarHorizontalStackedComponent,{animationState: BarHorizontalStackedComponent_animationState_factory});
+var renderType_BarHorizontalStackedComponent:import4.RenderComponentType = import3.createRenderComponentType('',0,import5.ViewEncapsulation.None,styles_BarHorizontalStackedComponent,{'animationState': BarHorizontalStackedComponent_animationState_factory});
 export class View_BarHorizontalStackedComponent0 extends import2.AppView<import0.BarHorizontalStackedComponent> {
   _text_0:any;
   _el_1:any;

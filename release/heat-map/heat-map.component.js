@@ -81,7 +81,13 @@ var HeatMapComponent = (function (_super) {
             }
         }
         var min = Math.min.apply(Math, [0].concat(domain));
+        if (typeof (this.yDomainMin) != "undefined") {
+            min = this.yDomainMin;
+        }
         var max = Math.max.apply(Math, domain);
+        if (typeof (this.yDomainMax) != "undefined") {
+            max = this.yDomainMax;
+        }
         return [min, max];
     };
     HeatMapComponent.prototype.getXScale = function () {
@@ -150,6 +156,8 @@ var HeatMapComponent = (function (_super) {
         'xAxis': [{ type: core_1.Input },],
         'yAxis': [{ type: core_1.Input },],
         'showXAxisLabel': [{ type: core_1.Input },],
+        'yDomainMin': [{ type: core_1.Input },],
+        'yDomainMax': [{ type: core_1.Input },],
         'showYAxisLabel': [{ type: core_1.Input },],
         'xAxisLabel': [{ type: core_1.Input },],
         'yAxisLabel': [{ type: core_1.Input },],
