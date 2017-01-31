@@ -62,6 +62,8 @@ export class HeatMapComponent extends BaseChartComponent {
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
+  @Input() yDomainMin;
+  @Input() yDomainMax;
   @Input() showYAxisLabel;
   @Input() xAxisLabel;
   @Input() yAxisLabel;
@@ -155,7 +157,13 @@ export class HeatMapComponent extends BaseChartComponent {
     }
 
     let min = Math.min(0, ...domain);
+    if (typeof(this.yDomainMin) != "undefined") {
+      min = this.yDomainMin;
+    }
     let max = Math.max(...domain);
+    if (typeof(this.yDomainMax) != "undefined") {
+      max = this.yDomainMax;
+    }
 
     return [min, max];
   }
