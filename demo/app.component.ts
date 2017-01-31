@@ -311,6 +311,8 @@ import './demo.scss';
             (legendLabelClick)="onLegendLabelClick($event)"
             [xAxis]="showXAxis"
             [yAxis]="showYAxis"
+            [yDomainMin]="yDomainMin"
+            [yDomainMax]="yDomainMax"
             [showXAxisLabel]="showXAxisLabel"
             [showYAxisLabel]="showYAxisLabel"
             [xAxisLabel]="xAxisLabel"
