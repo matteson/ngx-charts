@@ -627,6 +627,18 @@
         </select>
       </div>
 
+      <div *ngIf="chart.options.includes('yDomainMin')">
+        <label>Domain Limits</label>
+        <input type="checkbox" [checked]="domainLimits" (change)="toggleDomainLimits($event.target.checked)">
+        <label>Y axis min:</label><br />
+        <input type="number" [(ngModel)]="_yDomainMin"><br />
+      </div>
+      
+      <div *ngIf="chart.options.includes('yDomainMax')">
+        <label>Y axis max:</label><br />
+        <input type="number" [(ngModel)]="_yDomainMax"><br />
+      </div>
+
       <div *ngIf="chart.options.includes('min')">
         <label>Min value:</label><br />
         <input type="number" [(ngModel)]="gaugeMin"><br />
