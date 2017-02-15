@@ -83,16 +83,16 @@ export class SeriesVerticalComponent implements OnChanges {
     let d0 = 0;
     let total;
     if (this.type === 'normalized') {
-      total = this.series.map(d => d.value).reduce((sum, d) => { return sum + d; }, 0);
+      total = this.series.map(d => d.value).reduce((sum, d) => sum + d, 0);
     }
 
     this.bars = this.series.map((d, index) => {
       let value = d.value;
-      let label = d.name;
+      const label = d.name;
       const formattedLabel = formatLabel(label);
       const roundEdges = this.type === 'standard';
 
-      let bar: any = {
+      const bar: any = {
         value,
         label,
         roundEdges,
@@ -114,8 +114,8 @@ export class SeriesVerticalComponent implements OnChanges {
           bar.y = this.yScale(value);
         }
       } else if (this.type === 'stacked') {
-        let offset0 = d0;
-        let offset1 = offset0 + value;
+        const offset0 = d0;
+        const offset1 = offset0 + value;
         d0 += value;
 
         bar.height = this.yScale(offset0) - this.yScale(offset1);
@@ -172,7 +172,7 @@ export class SeriesVerticalComponent implements OnChanges {
 
   isActive(entry): boolean {
     if(!this.activeEntries) return false;
-    let item = this.activeEntries.find(d => {
+    const item = this.activeEntries.find(d => {
       return entry.name === d.name && entry.series === d.series;
     });
     return item !== undefined;

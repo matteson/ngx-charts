@@ -3,13 +3,13 @@ import {
   Input,
   Output,
   EventEmitter,
+  ViewEncapsulation,
   HostListener,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { calculateViewDimensions, ViewDimensions } from '../common/view-dimensions.helper';
 import { ColorHelper } from '../common/color.helper';
 import { BaseChartComponent } from '../common/base-chart.component';
-import * as moment from 'moment';
 import { id } from '../utils/id';
 import d3 from '../d3';
 
@@ -40,6 +40,7 @@ import d3 from '../d3';
           [showGridLines]="showGridLines"
           [showLabel]="showXAxisLabel"
           [labelText]="xAxisLabel"
+          [tickFormatting]="xAxisTickFormatting"
           (dimensionsChanged)="updateXAxisHeight($event)">
         </svg:g>
         <svg:g ngx-charts-y-axis
@@ -49,6 +50,7 @@ import d3 from '../d3';
           [showGridLines]="showGridLines"
           [showLabel]="showYAxisLabel"
           [labelText]="yAxisLabel"
+          [tickFormatting]="yAxisTickFormatting"
           (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <svg:g [attr.clip-path]="clipPath">
@@ -117,7 +119,9 @@ import d3 from '../d3';
       </svg:g>
     </ngx-charts-chart>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['../common/base-chart.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class AreaChartStackedComponent extends BaseChartComponent {
 
@@ -134,6 +138,9 @@ export class AreaChartStackedComponent extends BaseChartComponent {
   @Input() curve = d3.shape.curveLinear;
   @Input() activeEntries: any[] = [];
   @Input() schemeType: string;
+  @Input() xAxisTickFormatting: any;
+  @Input() yAxisTickFormatting: any;
+  @Input() roundDomains: boolean = false;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -199,9 +206,9 @@ export class AreaChartStackedComponent extends BaseChartComponent {
       this.yScale = this.getYScale(this.yDomain, this.dims.height);
 
       for (let i = 0; i < this.xSet.length; i++) {
-        let val = this.xSet[i];
+        const val = this.xSet[i];
         let d0 = 0;
-        for (let group of this.results) {
+        for (const group of this.results) {
 
           let d = group.series.find(item => {
             let a = item.name;
@@ -235,7 +242,7 @@ export class AreaChartStackedComponent extends BaseChartComponent {
       this.legendOptions = this.getLegendOptions();
 
       this.transform = `translate(${ this.dims.xOffset } , ${ this.margin[0] })`;
-      let pageUrl = this.location.path();
+      const pageUrl = this.location.path();
       this.clipPathId = 'clip' + id().toString();
       this.clipPath = `url(${pageUrl}#${this.clipPathId})`;
     });
@@ -259,8 +266,8 @@ export class AreaChartStackedComponent extends BaseChartComponent {
   getXDomain(): any[] {
     let values = [];
 
-    for (let results of this.results) {
-      for (let d of results.series) {
+    for (const results of this.results) {
+      for (const d of results.series) {
         if (!values.includes(d.name)) {
           values.push(d.name);
         }
@@ -271,14 +278,13 @@ export class AreaChartStackedComponent extends BaseChartComponent {
     let domain = [];
 
     if (this.scaleType === 'time') {
-      values = values.map(v => moment(v).toDate());
-      let min = Math.min(...values);
-      let max = Math.max(...values);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
       domain = [new Date(min), new Date(max)];
     } else if (this.scaleType === 'linear') {
       values = values.map(v => Number(v));
-      let min = Math.min(...values);
-      let max = Math.max(...values);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
       domain = [min, max];
     } else {
       domain = values;
@@ -289,13 +295,13 @@ export class AreaChartStackedComponent extends BaseChartComponent {
   }
 
   getYDomain(): any[] {
-    let domain = [];
+    const domain = [];
 
     for (let i = 0; i < this.xSet.length; i++) {
-      let val = this.xSet[i];
+      const val = this.xSet[i];
       let sum = 0;
-      for (let group of this.results) {
-        let d = group.series.find(item => {
+      for (const group of this.results) {
+        const d = group.series.find(item => {
           let a = item.name;
           let b = val;
           if (this.scaleType === 'time') {
@@ -313,8 +319,8 @@ export class AreaChartStackedComponent extends BaseChartComponent {
       domain.push(sum);
     }
 
-    let min = Math.min(0, ...domain);
-    let max = Math.max(...domain);
+    const min = Math.min(0, ...domain);
+    const max = Math.max(...domain);
     return [min, max];
   }
 
@@ -326,34 +332,33 @@ export class AreaChartStackedComponent extends BaseChartComponent {
     let scale;
 
     if (this.scaleType === 'time') {
-      scale = d3.scaleTime()
-        .range([0, width])
-        .domain(domain);
+      scale = d3.scaleTime();
     } else if (this.scaleType === 'linear') {
-      scale = d3.scaleLinear()
-        .range([0, width])
-        .domain(domain);
+      scale = d3.scaleLinear();
     } else if (this.scaleType === 'ordinal') {
       scale = d3.scalePoint()
-        .range([0, width])
-        .padding(0.1)
-        .domain(domain);
+        .padding(0.1);
     }
 
-    return scale;
+    scale
+      .range([0, width])
+      .domain(domain);
+
+    return this.roundDomains ? scale.nice() : scale;
   }
 
   getYScale(domain, height) {
-    return d3.scaleLinear()
+    const scale = d3.scaleLinear()
       .range([height, 0])
       .domain(domain);
+    return this.roundDomains ? scale.nice() : scale;
   }
 
   getScaleType(values): string {
     let date = true;
     let num = true;
 
-    for (let value of values) {
+    for (const value of values) {
       if (!this.isDate(value)) {
         date = false;
       }
@@ -422,7 +427,7 @@ export class AreaChartStackedComponent extends BaseChartComponent {
   }
 
   getLegendOptions() {
-    let opts = {
+    const opts = {
       scaleType: this.schemeType,
       colors: undefined,
       domain: []
@@ -472,7 +477,7 @@ export class AreaChartStackedComponent extends BaseChartComponent {
 
   deactivateAll() {
     this.activeEntries = [...this.activeEntries];
-    for (let entry of this.activeEntries) {
+    for (const entry of this.activeEntries) {
       this.deactivate.emit({ value: entry, entries: [] });
     }
     this.activeEntries = [];

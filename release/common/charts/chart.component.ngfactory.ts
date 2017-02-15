@@ -16,7 +16,7 @@ import * as import7 from '../../../../src/common/tooltip/tooltip.service';
 import * as import8 from '@angular/core/src/linker/view_type';
 import * as import9 from '@angular/core/src/change_detection/constants';
 import * as import10 from '@angular/core/src/linker/component_factory';
-import * as import11 from '../../../../src/services/injection.service';
+import * as import11 from '../../../../src/common/tooltip/injection.service';
 import * as import12 from '@angular/core/src/animation/animation_transition';
 import * as import13 from '@angular/core/src/animation/animation_sequence_player';
 import * as import14 from '@angular/core/src/animation/animation_styles';
@@ -362,7 +362,7 @@ class View_ChartComponent2 extends import2.AppView<any> {
     return result;
   }
 }
-var renderType_ChartComponent:import4.RenderComponentType = import3.createRenderComponentType('',1,import5.ViewEncapsulation.None,styles_ChartComponent,{animationState: ChartComponent_animationState_factory});
+var renderType_ChartComponent:import4.RenderComponentType = import3.createRenderComponentType('',1,import5.ViewEncapsulation.None,styles_ChartComponent,{'animationState': ChartComponent_animationState_factory});
 export class View_ChartComponent0 extends import2.AppView<import0.ChartComponent> {
   _text_0:any;
   _el_1:any;

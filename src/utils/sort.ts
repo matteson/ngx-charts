@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 export function sortLinear(data, property, direction = 'asc') {
   return data.sort((a, b) => {
     if (direction === 'asc') {
@@ -11,11 +10,11 @@ export function sortLinear(data, property, direction = 'asc') {
 
 export function sortByDomain(data, property, direction = 'asc', domain) {
   return data.sort((a, b) => {
-    let aVal = a[property];
-    let bVal = b[property];
+    const aVal = a[property];
+    const bVal = b[property];
 
-    let aIdx = domain.indexOf(aVal);
-    let bIdx = domain.indexOf(bVal);
+    const aIdx = domain.indexOf(aVal);
+    const bIdx = domain.indexOf(bVal);
 
     if (direction === 'asc') {
       return aIdx - bIdx;
@@ -27,16 +26,16 @@ export function sortByDomain(data, property, direction = 'asc', domain) {
 
 export function sortByTime(data, property, direction = 'asc') {
   return data.sort((a, b) => {
-    let aDate = moment(a[property]);
-    let bDate = moment(b[property]);
+    const aDate = a[property].getTime();
+    const bDate = b[property].getTime();
 
     if (direction === 'asc') {
-      if (aDate.isAfter(bDate)) return 1;
-      if (bDate.isAfter(aDate)) return -1;
+      if (aDate > bDate) return 1;
+      if (bDate > aDate) return -1;
       return 0;
     } else {
-      if (aDate.isAfter(bDate)) return -1;
-      if (bDate.isAfter(aDate)) return 1;
+      if (aDate > bDate) return -1;
+      if (bDate > aDate) return 1;
       return 0;
     }
   });

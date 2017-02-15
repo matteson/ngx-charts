@@ -4,6 +4,7 @@ import {
   Output,
   EventEmitter,
   trigger,
+  ViewEncapsulation,
   style,
   transition,
   animate,
@@ -32,6 +33,7 @@ import d3 from '../d3';
           [dims]="dims"
           [showLabel]="showXAxisLabel"
           [labelText]="xAxisLabel"
+          [tickFormatting]="xAxisTickFormatting"
           (dimensionsChanged)="updateXAxisHeight($event)">
         </svg:g>
         <svg:g ngx-charts-y-axis
@@ -41,6 +43,7 @@ import d3 from '../d3';
           [showGridLines]="showGridLines"
           [showLabel]="showYAxisLabel"
           [labelText]="yAxisLabel"
+          [tickFormatting]="yAxisTickFormatting"
           (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <svg:g
@@ -65,6 +68,8 @@ import d3 from '../d3';
       </svg:g>
     </ngx-charts-chart>
   `,
+  styleUrls: ['../common/base-chart.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('animationState', [
@@ -91,6 +96,10 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   @Input() showGridLines: boolean = true;
   @Input() activeEntries: any[] = [];
   @Input() schemeType: string;
+  @Input() xAxisTickFormatting: any;
+  @Input() yAxisTickFormatting: any;
+  @Input() barPadding = 8;
+  @Input() roundDomains: boolean = false;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -144,8 +153,8 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   }
 
   getGroupDomain() {
-    let domain = [];
-    for (let group of this.results) {
+    const domain = [];
+    for (const group of this.results) {
       if (!domain.includes(group.name)) {
         domain.push(group.name);
       }
@@ -155,9 +164,9 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   }
 
   getInnerDomain() {
-    let domain = [];
-    for (let group of this.results) {
-      for (let d of group.series) {
+    const domain = [];
+    for (const group of this.results) {
+      for (const d of group.series) {
         if (!domain.includes(d.name)) {
           domain.push(d.name);
         }
@@ -168,23 +177,23 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   }
 
   getValueDomain() {
-    let domain = [];
-    for (let group of this.results) {
+    const domain = [];
+    for (const group of this.results) {
       let sum = 0;
-      for (let d of group.series) {
+      for (const d of group.series) {
         sum += d.value;
       }
 
       domain.push(sum);
     }
 
-    let min = Math.min(0, ...domain);
-    let max = Math.max(...domain);
+    const min = Math.min(0, ...domain);
+    const max = Math.max(...domain);
     return [min, max];
   }
 
   getXScale() {
-    let spacing = 0.1;
+    const spacing = this.groupDomain.length / (this.dims.width / this.barPadding + 1);
     return d3.scaleBand()
       .rangeRound([0, this.dims.width])
       .paddingInner(spacing)
@@ -192,10 +201,10 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   }
 
   getYScale() {
-    return d3.scaleLinear()
+    const scale = d3.scaleLinear()
       .range([this.dims.height, 0])
       .domain(this.valueDomain);
-
+    return this.roundDomains ? scale.nice() : scale;
   }
 
   groupTransform(group) {
@@ -225,7 +234,7 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   }
 
   getLegendOptions() {
-    let opts = {
+    const opts = {
       scaleType: this.schemeType,
       colors: undefined,
       domain: []
@@ -252,7 +261,7 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   }
 
   onActivate(event, group) {
-    let item = Object.assign({}, event);
+    const item = Object.assign({}, event);
     if (group) {
       item.series = group.name;
     }
@@ -269,7 +278,7 @@ export class BarVerticalStackedComponent extends BaseChartComponent {
   }
 
   onDeactivate(event, group) {
-    let item = Object.assign({}, event);
+    const item = Object.assign({}, event);
     if (group) {
       item.series = group.name;
     }

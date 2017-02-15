@@ -3,6 +3,7 @@ import {
   Input,
   Output,
   EventEmitter,
+  ViewEncapsulation,
   ChangeDetectionStrategy
 } from '@angular/core';
 import d3 from '../d3';
@@ -26,6 +27,8 @@ import { ColorHelper } from '../common/color.helper';
       </svg:g>
     </ngx-charts-chart>
   `,
+  styleUrls: ['./tree-map.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TreeMapComponent extends BaseChartComponent {
@@ -57,13 +60,13 @@ export class TreeMapComponent extends BaseChartComponent {
       this.treemap = d3.treemap()
         .size([this.dims.width, this.dims.height]);
 
-      let rootNode = {
+      const rootNode = {
         name: 'root',
         value: 0,
         isRoot: true
       };
 
-      let root = d3.stratify()
+      const root = d3.stratify()
         .id(d => {
           let label = d.name;
 
@@ -74,7 +77,7 @@ export class TreeMapComponent extends BaseChartComponent {
           }
           return label;
         })
-        .parentId(d => { return d.isRoot ? null : 'root'; })
+        .parentId(d => d.isRoot ? null : 'root')
         ([rootNode, ...this.results])
         .sum(d => d.value);
 

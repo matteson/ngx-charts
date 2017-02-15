@@ -1,6 +1,7 @@
 import {
   Component,
   Input,
+  ViewEncapsulation,
   Output,
   EventEmitter,
   ChangeDetectionStrategy
@@ -28,6 +29,7 @@ import d3 from '../d3';
           [dims]="dims"
           [showLabel]="showXAxisLabel"
           [labelText]="xAxisLabel"
+          [tickFormatting]="xAxisTickFormatting"
           (dimensionsChanged)="updateXAxisHeight($event)">
         </svg:g>
         <svg:g ngx-charts-y-axis
@@ -37,6 +39,7 @@ import d3 from '../d3';
           [showGridLines]="showGridLines"
           [showLabel]="showYAxisLabel"
           [labelText]="yAxisLabel"
+          [tickFormatting]="yAxisTickFormatting"
           (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <svg:g ngx-charts-series-vertical
@@ -54,7 +57,9 @@ import d3 from '../d3';
       </svg:g>
     </ngx-charts-chart>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['../common/base-chart.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class BarVerticalComponent extends BaseChartComponent {
 
@@ -69,6 +74,10 @@ export class BarVerticalComponent extends BaseChartComponent {
   @Input() showGridLines: boolean = true;
   @Input() activeEntries: any[] = [];
   @Input() schemeType: string;
+  @Input() xAxisTickFormatting: any;
+  @Input() yAxisTickFormatting: any;
+  @Input() barPadding = 8;
+  @Input() roundDomains: boolean = false;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -114,8 +123,8 @@ export class BarVerticalComponent extends BaseChartComponent {
   }
 
   getXScale() {
-    const spacing = 0.2;
     this.xDomain = this.getXDomain();
+    const spacing = this.xDomain.length / (this.dims.width / this.barPadding + 1);
     return d3.scaleBand()
       .rangeRound([0, this.dims.width])
       .paddingInner(spacing)
@@ -124,9 +133,10 @@ export class BarVerticalComponent extends BaseChartComponent {
 
   getYScale() {
     this.yDomain = this.getYDomain();
-    return d3.scaleLinear()
+    const scale = d3.scaleLinear()
       .range([this.dims.height, 0])
       .domain(this.yDomain);
+    return this.roundDomains ? scale.nice() : scale;
   }
 
   getXDomain(): any[] {
@@ -134,9 +144,9 @@ export class BarVerticalComponent extends BaseChartComponent {
   }
 
   getYDomain() {
-    let values = this.results.map(d => d.value);
-    let min = Math.min(0, ...values);
-    let max = Math.max(...values);
+    const values = this.results.map(d => d.value);
+    const min = Math.min(0, ...values);
+    const max = Math.max(...values);
     return [min, max];
   }
 
@@ -156,7 +166,7 @@ export class BarVerticalComponent extends BaseChartComponent {
   }
 
   getLegendOptions() {
-    let opts = {
+    const opts = {
       scaleType: this.schemeType,
       colors: undefined,
       domain: []

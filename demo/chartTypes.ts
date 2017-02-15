@@ -7,8 +7,9 @@ const chartGroups = [
         selector: 'bar-vertical',
         inputFormat: 'singleSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       },
       {
@@ -16,8 +17,9 @@ const chartGroups = [
         selector: 'bar-horizontal',
         inputFormat: 'singleSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       },
       {
@@ -25,8 +27,9 @@ const chartGroups = [
         selector: 'bar-vertical-2d',
         inputFormat: 'multiSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding', 'groupPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       },
       {
@@ -34,8 +37,9 @@ const chartGroups = [
         selector: 'bar-horizontal-2d',
         inputFormat: 'multiSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding', 'groupPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       },
       {
@@ -43,8 +47,9 @@ const chartGroups = [
         selector: 'bar-vertical-stacked',
         inputFormat: 'multiSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       },
       {
@@ -52,8 +57,9 @@ const chartGroups = [
         selector: 'bar-horizontal-stacked',
         inputFormat: 'multiSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       },
       {
@@ -61,8 +67,9 @@ const chartGroups = [
         selector: 'bar-vertical-normalized',
         inputFormat: 'multiSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       },
       {
@@ -70,8 +77,9 @@ const chartGroups = [
         selector: 'bar-horizontal-normalized',
         inputFormat: 'multiSeries',
         options: [
-          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
-          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines'
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient', 'barPadding',
+          'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'showGridLines', 'roundDomains'
         ]
       }
     ]
@@ -83,13 +91,16 @@ const chartGroups = [
         name: 'Pie Chart',
         selector: 'pie-chart',
         inputFormat: 'singleSeries',
-        options: ['colorScheme', 'gradient', 'showLegend', 'doughnut', 'explodeSlices', 'showLabels']
+        options: [
+          'colorScheme', 'gradient', 'showLegend', 'doughnut', 'arcWidth',
+          'explodeSlices', 'showLabels'
+        ]
       },
       {
         name: 'Advanced Pie Chart',
         selector: 'advanced-pie-chart',
         inputFormat: 'singleSeries',
-        options: ['colorScheme', 'gradient', 'showLegend', 'doughnut', 'showLabels']
+        options: ['colorScheme', 'gradient']
       },
       {
         name: 'Pie Grid',
@@ -110,7 +121,8 @@ const chartGroups = [
           'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
           'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel',
           'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve',
-          'rangeFillOpacity', 'yAxisTransform'
+          'rangeFillOpacity', 'yAxisTransform', 'roundDomains',
+          'rangeFillOpacity', 'roundDomains'
         ]
       },
       {
@@ -120,7 +132,8 @@ const chartGroups = [
         options: [
           'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
           'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel',
-          'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve'
+          'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve',
+          'roundDomains'
         ]
       },
       {
@@ -130,7 +143,8 @@ const chartGroups = [
         options: [
           'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
           'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel',
-          'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve'
+          'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve',
+          'roundDomains'
         ]
       },
       {
@@ -140,7 +154,8 @@ const chartGroups = [
         options: [
           'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'gradient',
           'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel',
-          'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve'
+          'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve',
+          'roundDomains'
         ]
       },
     ]
@@ -148,6 +163,16 @@ const chartGroups = [
   {
     name: 'Other Charts',
     charts: [
+      {
+        name: 'Bubble Chart',
+        selector: 'bubble-chart',
+        inputFormat: 'bubble',
+        options: [
+          'colorScheme', 'schemeType', 'showXAxis', 'showYAxis', 'showLegend',
+          'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel', 'showGridLines',
+          'roundDomains', 'autoScale'
+        ]
+      },
       {
         name: 'Force Directed Graph',
         selector: 'force-directed-graph',
@@ -160,7 +185,8 @@ const chartGroups = [
         inputFormat: 'multiSeries',
         options: [
           'colorScheme', 'showXAxis', 'showYAxis', 'gradient', 'showLegend',
-          'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel'
+          'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
+          'innerPadding'
         ]
       },
       {
