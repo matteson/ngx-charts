@@ -616,6 +616,17 @@
         </select>
       </div>
 
+      <div *ngIf="chart.options.includes('yAxisTransform')">
+        <label>Y Axis Transform</label>
+        <select
+          [ngModel]="yAxisTransform"
+          (ngModelChange)="setYAxisTransform($event)">
+          <option *ngFor="let transformType of transformTypes" [value]="transformType">
+            {{transformType}}
+          </option>
+        </select>
+      </div>
+
       <div *ngIf="chart.options.includes('min')">
         <label>Min value:</label><br />
         <input type="number" [(ngModel)]="gaugeMin"><br />
