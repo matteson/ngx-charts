@@ -122,7 +122,7 @@ const chartGroups = [
           'showLegend', 'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel',
           'yAxisLabel', 'autoScale', 'timeline', 'showGridLines', 'curve',
           'rangeFillOpacity', 'yAxisTransform', 'roundDomains',
-          'rangeFillOpacity', 'roundDomains'
+          'yDomainMin', 'yDomainMax'
         ]
       },
       {
@@ -186,7 +186,7 @@ const chartGroups = [
         options: [
           'colorScheme', 'showXAxis', 'showYAxis', 'gradient', 'showLegend',
           'showXAxisLabel', 'xAxisLabel', 'showYAxisLabel', 'yAxisLabel',
-          'innerPadding'
+          'innerPadding', 'yDomainMin', 'yDomainMax'
         ]
       },
       {

@@ -34,6 +34,7 @@ export class AppComponent implements OnInit {
   width: number = 700;
   height: number = 300;
   fitContainer: boolean = false;
+  domainLimits: boolean = false;
 
   // options
   showXAxis = true;
@@ -49,6 +50,11 @@ export class AppComponent implements OnInit {
   barPadding = 8;
   groupPadding = 16;
   roundDomains = false;
+
+  _yDomainMin = 1000;
+  _yDomainMax = 10000;
+  yDomainMin: any;
+  yDomainMax: any;
 
   // axis transforms
   yAxisTransform = 'linear';
@@ -244,6 +250,23 @@ export class AppComponent implements OnInit {
       this.view = undefined;
     } else {
       this.applyDimensions();
+    }
+  }
+
+  applyDomainLimits(event) {
+    this.yDomainMin = this._yDomainMin;
+    this.yDomainMax = this._yDomainMax;
+  }
+
+  toggleDomainLimits(event) {
+    this.domainLimits = event;
+
+    if (!this.domainLimits) {
+      this.yDomainMax = undefined;
+      this.yDomainMin = undefined;
+    } else {
+      this.yDomainMax = this._yDomainMax;
+      this.yDomainMin = this._yDomainMin;
     }
   }
 
