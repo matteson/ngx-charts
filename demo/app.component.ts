@@ -1,9 +1,12 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import d3 from '../src/d3';
+import * as shape from 'd3-shape';
 
 import { colorSets } from '../src/utils/color-sets';
 import { single, multi, countries, bubble, generateData, generateGraph } from './data';
 import chartGroups from './chartTypes';
+
+const monthName = new Intl.DateTimeFormat('en-us', { month: 'short' });
+const weekdayName = new Intl.DateTimeFormat('en-us', { weekday: 'short' });
 
 @Component({
   selector: 'app',
@@ -25,6 +28,7 @@ export class AppComponent implements OnInit {
   multi: any[];
   dateData: any[];
   dateDataWithRange: any[];
+  calendarData: any[];
   graph: { links: any[], nodes: any[] };
   bubble: any;
   linearScale: boolean = false;
@@ -42,14 +46,17 @@ export class AppComponent implements OnInit {
   gradient = false;
   showLegend = true;
   showXAxisLabel = true;
+  tooltipDisabled = false;
   xAxisLabel = 'Country';
   showYAxisLabel = true;
   yAxisLabel = 'GDP Per Capita';
   showGridLines = true;
-  innerPadding = 8;
+  innerPadding = '10%';
   barPadding = 8;
   groupPadding = 16;
   roundDomains = false;
+  maxRadius = 10;
+  minRadius = 3;
 
   _yDomainMin = 1000;
   _yDomainMax = 10000;
@@ -63,7 +70,7 @@ export class AppComponent implements OnInit {
   ];
   // line interpolation
   curveType: string = 'Linear';
-  curve = d3.shape.curveLinear;
+  curve: any = shape.curveLinear;
   interpolationTypes = [
     'Basis', 'Bundle', 'Cardinal', 'Catmull Rom', 'Linear', 'Monotone X',
     'Monotone Y', 'Natural', 'Step', 'Step After', 'Step Before'
@@ -74,6 +81,14 @@ export class AppComponent implements OnInit {
   schemeType: string = 'ordinal';
   selectedColorScheme: string;
   rangeFillOpacity: number = 0.15;
+
+  // Override colors for certain values
+  // customColors: any[] = [
+  //   {
+  //     name: 'Germany',
+  //     value: '#0000ff'
+  //   }
+  // ];
 
   // pie
   showLabels = true;
@@ -119,6 +134,7 @@ export class AppComponent implements OnInit {
     this.dateData = generateData(5, false);
     this.dateDataWithRange = generateData(2, true);
     this.setColorScheme('cool');
+    this.calendarData = this.getCalendarData();
   }
 
   get dateDataWithOrWithoutRange() {
@@ -237,6 +253,8 @@ export class AppComponent implements OnInit {
 
     this.dateData = generateData(5, false);
     this.dateDataWithRange = generateData(2, true);
+
+    if (this.chart.inputFormat === 'calendarData') this.calendarData = this.getCalendarData();
   }
 
   applyDimensions() {
@@ -287,6 +305,18 @@ export class AppComponent implements OnInit {
       this.xAxisLabel = 'Country';
     }
 
+    if (this.chartType === 'calendar') {
+      this.width = 1100;
+      this.height = 200;
+    } else {
+      this.width = 700;
+      this.height = 300;
+    }
+
+    if (!this.fitContainer) {
+      this.applyDimensions();
+    }
+
     for (const group of this.chartGroups) {
       for (const chart of group.charts) {
         if (chart.selector === chartSelector) {
@@ -304,37 +334,37 @@ export class AppComponent implements OnInit {
   setInterpolationType(curveType) {
     this.curveType = curveType;
     if (curveType === 'Basis') {
-      this.curve = d3.shape.curveBasis;
+      this.curve = shape.curveBasis;
     }
     if (curveType === 'Bundle') {
-      this.curve = d3.shape.curveBundle.beta(1);
+      this.curve = shape.curveBundle.beta(1);
     }
     if (curveType === 'Cardinal') {
-      this.curve = d3.shape.curveCardinal;
+      this.curve = shape.curveCardinal;
     }
     if (curveType === 'Catmull Rom') {
-      this.curve = d3.shape.curveCatmullRom;
+      this.curve = shape.curveCatmullRom;
     }
     if (curveType === 'Linear') {
-      this.curve = d3.shape.curveLinear;
+      this.curve = shape.curveLinear;
     }
     if (curveType === 'Monotone X') {
-      this.curve = d3.shape.curveMonotoneX;
+      this.curve = shape.curveMonotoneX;
     }
     if (curveType === 'Monotone Y') {
-      this.curve = d3.shape.curveMonotoneY;
+      this.curve = shape.curveMonotoneY;
     }
     if (curveType === 'Natural') {
-      this.curve = d3.shape.curveNatural;
+      this.curve = shape.curveNatural;
     }
     if (curveType === 'Step') {
-      this.curve = d3.shape.curveStep;
+      this.curve = shape.curveStep;
     }
     if (curveType === 'Step After') {
-      this.curve = d3.shape.curveStepAfter;
+      this.curve = shape.curveStepAfter;
     }
     if (curveType === 'Step Before') {
-      this.curve = d3.shape.curveStepBefore;
+      this.curve = shape.curveStepBefore;
     }
   }
 
@@ -354,6 +384,71 @@ export class AppComponent implements OnInit {
 
   onLegendLabelClick(entry) {
     console.log('Legend clicked', entry);
+  }
+
+  getCalendarData(): any[] {
+    // today
+    const now = new Date();
+    const todaysDay = now.getDate();
+    const thisDay = new Date(now.getFullYear(), now.getMonth(), todaysDay);
+
+    // Monday
+    const thisMonday = new Date(thisDay.getFullYear(), thisDay.getMonth(), todaysDay - thisDay.getDay() + 1);
+    const thisMondayDay = thisMonday.getDate();
+    const thisMondayYear = thisMonday.getFullYear();
+    const thisMondayMonth = thisMonday.getMonth();
+
+    // 52 weeks before monday
+    const calendarData = [];
+    const getDate = d => new Date(thisMondayYear, thisMondayMonth, d);
+    for (let week = -52; week <= 0; week++) {
+      const mondayDay = thisMondayDay + (week * 7);
+      const monday = getDate(mondayDay);
+
+      // one week
+      const series = [];
+      for (let dayOfWeek = 7; dayOfWeek > 0; dayOfWeek--) {
+        const date = getDate(mondayDay - 1 + dayOfWeek);
+
+        // skip future dates
+        if (date > now) {
+          continue;
+        }
+
+        // value
+        const value = (dayOfWeek < 6) ? (date.getMonth() + 1) : 0;
+
+        series.push({
+          date,
+          name: weekdayName.format(date),
+          value
+        });
+      }
+
+      calendarData.push({
+        name: `Week of ${monday.toLocaleDateString()}`,
+        series
+      });
+    }
+
+    return calendarData;
+  }
+
+  calendarAxisTickFormatting(mondayString: string) {
+    const monday = new Date(mondayString.replace('Week of ', ''));
+    const month = monday.getMonth();
+    const day = monday.getDate();
+    const year = monday.getFullYear();
+    const lastSunday = new Date(year, month, day - 1);
+    const nextSunday = new Date(year, month, day + 6);
+    return (lastSunday.getMonth() !== nextSunday.getMonth()) ? monthName.format(nextSunday) : '';
+  }
+
+  calendarTooltipText(c): string {
+    return `
+      <span class="tooltip-label">${c.label} • ${c.cell.date.toLocaleDateString()}</span>
+      <span class="tooltip-val">${c.data.toLocaleString()}</span>
+    `;
   }
 
 }
