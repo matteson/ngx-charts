@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
-import d3 from '../d3';
+import { scaleLinear } from 'd3-scale';
 
 import { BaseChartComponent } from '../common/base-chart.component';
 import { calculateViewDimensions, ViewDimensions } from '../common/view-dimensions.helper';
@@ -17,18 +17,15 @@ import { getScaleType, getDomain, getScale } from './bubble-chart.utils';
       (legendLabelClick)="onClick($event)"
       (legendLabelActivate)="onActivate($event)"
       (legendLabelDeactivate)="onDeactivate($event)">
-
       <svg:defs>
-        <svg:clipPath [attr.id]="clipPathId">
+        <svg:clipPath>
           <svg:rect
             [attr.width]="dims.width + 10"
             [attr.height]="dims.height + 10"
             [attr.transform]="'translate(-5, -5)'"/>
         </svg:clipPath>
       </svg:defs>
-
       <svg:g [attr.transform]="transform" class="bubble-chart chart">
-
         <svg:g ngx-charts-x-axis
           *ngIf="xAxis"
           [showGridLines]="showGridLines"
@@ -38,7 +35,6 @@ import { getScaleType, getDomain, getScale } from './bubble-chart.utils';
           [labelText]="xAxisLabel"
           [tickFormatting]="xAxisTickFormatting"
           (dimensionsChanged)="updateXAxisHeight($event)"/>
-
         <svg:g ngx-charts-y-axis
           *ngIf="yAxis"
           [showGridLines]="showGridLines"
@@ -48,7 +44,6 @@ import { getScaleType, getDomain, getScale } from './bubble-chart.utils';
           [labelText]="yAxisLabel"
           [tickFormatting]="yAxisTickFormatting"
           (dimensionsChanged)="updateYAxisWidth($event)"/>
-
         <svg:rect
           class="bubble-chart-area"
           x="0"
@@ -58,7 +53,6 @@ import { getScaleType, getDomain, getScale } from './bubble-chart.utils';
           style="fill: rgb(255, 0, 0); opacity: 0; cursor: 'auto';"
           (mouseenter)="deactivateAll()"
         />
-
         <svg:g *ngFor="let series of data">
           <svg:g ngx-charts-bubble-series
             [xScale]="xScale"
@@ -71,11 +65,11 @@ import { getScaleType, getDomain, getScale } from './bubble-chart.utils';
             [colors]="colors"
             [data]="series"
             [activeEntries]="activeEntries"
+            [tooltipDisabled]="tooltipDisabled"
             (select)="onClick($event, series)"
             (activate)="onActivate($event)"
             (deactivate)="onDeactivate($event)" />
         </svg:g>
-
       </svg:g>
     </ngx-charts-chart>`
 })
@@ -99,6 +93,7 @@ export class BubbleChartComponent extends BaseChartComponent {
   @Input() autoScale: boolean;
   @Input() schemeType = 'ordinal';
   @Input() legendPosition: string = 'right';
+  @Input() tooltipDisabled: boolean = false;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -107,6 +102,7 @@ export class BubbleChartComponent extends BaseChartComponent {
   colors: ColorHelper;
   scaleType = 'linear';
   margin = [10, 20, 10, 20];
+  bubblePadding = [0, 0, 0, 0];
   data: any;
 
   legendOptions: any;
@@ -132,39 +128,44 @@ export class BubbleChartComponent extends BaseChartComponent {
   update(): void {
     super.update();
 
-    this.zone.run(() => {
-      this.dims = calculateViewDimensions({
-        width: this.width,
-        height: this.height,
-        margins: this.margin,
-        showXAxis: this.xAxis,
-        showYAxis: this.yAxis,
-        xAxisHeight: this.xAxisHeight,
-        yAxisWidth: this.yAxisWidth,
-        showXLabel: this.showXAxisLabel,
-        showYLabel: this.showYAxisLabel,
-        showLegend: this.legend,
-        legendType: this.schemeType
-      });
-
-      this.seriesDomain = this.results.map(d => d.name);
-      this.rDomain = this.getRDomain();
-      this.xDomain = this.getXDomain();
-      this.yDomain = this.getYDomain();
-
-      this.transform = `translate(${ this.dims.xOffset },${ this.margin[0] })`;
-
-      const colorDomain = this.schemeType === 'ordinal' ? this.seriesDomain : this.rDomain;
-      this.colors = new ColorHelper(this.scheme, this.schemeType, colorDomain, this.customColors);
-
-      this.data = this.results;
-
-      this.rScale = this.getRScale(this.rDomain, [this.minRadius, this.maxRadius]);
-      this.xScale = this.getXScale(this.xDomain, this.dims.width);
-      this.yScale = this.getYScale(this.yDomain, this.dims.height);
-
-      this.legendOptions = this.getLegendOptions();
+    this.dims = calculateViewDimensions({
+      width: this.width,
+      height: this.height,
+      margins: this.margin,
+      showXAxis: this.xAxis,
+      showYAxis: this.yAxis,
+      xAxisHeight: this.xAxisHeight,
+      yAxisWidth: this.yAxisWidth,
+      showXLabel: this.showXAxisLabel,
+      showYLabel: this.showYAxisLabel,
+      showLegend: this.legend,
+      legendType: this.schemeType
     });
+
+    this.seriesDomain = this.results.map(d => d.name);
+    this.rDomain = this.getRDomain();
+    this.xDomain = this.getXDomain();
+    this.yDomain = this.getYDomain();
+
+    this.transform = `translate(${ this.dims.xOffset },${ this.margin[0] })`;
+
+    const colorDomain = this.schemeType === 'ordinal' ? this.seriesDomain : this.rDomain;
+    this.colors = new ColorHelper(this.scheme, this.schemeType, colorDomain, this.customColors);
+
+    this.data = this.results;
+
+    this.minRadius = Math.max(this.minRadius, 1);
+    this.maxRadius = Math.max(this.maxRadius, 1);
+
+    this.rScale = this.getRScale(this.rDomain, [this.minRadius, this.maxRadius]);
+
+    this.bubblePadding = [0, 0, 0, 0];
+    this.setScales();
+
+    this.bubblePadding = this.getBubblePadding();
+    this.setScales();
+
+    this.legendOptions = this.getLegendOptions();
   }
 
   @HostListener('mouseleave')
@@ -172,25 +173,50 @@ export class BubbleChartComponent extends BaseChartComponent {
     this.deactivateAll();
   }
 
-  onClick(data, series): void {
+  onClick(data, series?): void {
     if (series) {
       data.series = series.name;
     }
+
     this.select.emit(data);
   }
 
+  getBubblePadding() {
+    let yMin = 0;
+    let xMin = 0;
+    let yMax = this.dims.height;
+    let xMax = this.dims.width;
+
+    for (const s of this.data) {
+      for (const d of s.series) {
+        const r = this.rScale(d.r);
+        const cx = (this.xScaleType === 'linear') ? this.xScale(Number(d.x)) : this.xScale(d.x);
+        const cy = (this.yScaleType === 'linear') ? this.yScale(Number(d.y)) : this.yScale(d.y);
+        xMin = Math.max(r - cx, xMin);
+        yMin = Math.max(r - cy, yMin);
+        yMax = Math.max(cy + r, yMax);
+        xMax = Math.max(cx + r, xMax);
+      }
+    }
+
+    return [yMin, xMax - this.dims.width, yMax - this.dims.height, xMin];
+  }
+
+  setScales() {
+    this.xScale = this.getXScale(this.xDomain, this.dims.width - this.bubblePadding[1]);
+    this.yScale = this.getYScale(this.yDomain, this.dims.height - this.bubblePadding[2]);
+  }
+
   getYScale(domain, height): any {
-    const padding = (domain[1] - domain[0]) / height * this.maxRadius;  // padding to keep bubbles inside range
-    return getScale(domain, [height, 0], this.yScaleType, padding, this.roundDomains);
+    return getScale(domain, [height, this.bubblePadding[0]], this.yScaleType, this.roundDomains);
   }
 
   getXScale(domain, width): any {
-    const padding = (domain[1] - domain[0]) / width * this.maxRadius;  // padding to keep bubbles inside range
-    return getScale(domain, [0, width], this.xScaleType, padding, this.roundDomains);
+    return getScale(domain, [this.bubblePadding[3], width], this.xScaleType, this.roundDomains);
   }
 
   getRScale(domain, range): any {
-    const scale = d3.scaleLinear()
+    const scale = scaleLinear()
       .range(range)
       .domain(domain);
 
