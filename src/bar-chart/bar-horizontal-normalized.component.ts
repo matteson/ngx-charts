@@ -2,6 +2,7 @@ import {
   Component,
   Input,
   Output,
+  ViewEncapsulation,
   EventEmitter,
   trigger,
   style,
@@ -33,6 +34,7 @@ import d3 from '../d3';
           [showGridLines]="showGridLines"
           [showLabel]="showXAxisLabel"
           [labelText]="xAxisLabel"
+          [tickFormatting]="xAxisTickFormatting"
           (dimensionsChanged)="updateXAxisHeight($event)">
         </svg:g>
         <svg:g ngx-charts-y-axis
@@ -41,6 +43,7 @@ import d3 from '../d3';
           [dims]="dims"
           [showLabel]="showYAxisLabel"
           [labelText]="yAxisLabel"
+          [tickFormatting]="yAxisTickFormatting"
           (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <svg:g
@@ -66,6 +69,8 @@ import d3 from '../d3';
     </ngx-charts-chart>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['../common/base-chart.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   animations: [
     trigger('animationState', [
       transition('* => void', [
@@ -91,6 +96,10 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   @Input() showGridLines: boolean = true;
   @Input() activeEntries: any[] = [];
   @Input() schemeType: string;
+  @Input() xAxisTickFormatting: any;
+  @Input() yAxisTickFormatting: any;
+  @Input() barPadding = 8;
+  @Input() roundDomains: boolean = false;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -143,9 +152,9 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   }
 
   getGroupDomain(): any[] {
-    let domain = [];
+    const domain = [];
 
-    for (let group of this.results) {
+    for (const group of this.results) {
       if (!domain.includes(group.name)) {
         domain.push(group.name);
       }
@@ -155,10 +164,10 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   }
 
   getInnerDomain(): any[] {
-    let domain = [];
+    const domain = [];
 
-    for (let group of this.results) {
-      for (let d of group.series) {
+    for (const group of this.results) {
+      for (const d of group.series) {
         if (!domain.includes(d.name)) {
           domain.push(d.name);
         }
@@ -173,7 +182,7 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   }
 
   getYScale() {
-    const spacing = 0.1;
+    const spacing = this.groupDomain.length / (this.dims.height / this.barPadding + 1);
 
     return d3.scaleBand()
       .rangeRound([this.dims.height, 0])
@@ -182,9 +191,10 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   }
 
   getXScale() {
-    return d3.scaleLinear()
+    const scale = d3.scaleLinear()
       .range([0, this.dims.width])
       .domain(this.valueDomain);
+    return this.roundDomains ? scale.nice() : scale;
   }
 
   groupTransform(group): string {
@@ -215,7 +225,7 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   }
 
   getLegendOptions() {
-    let opts = {
+    const opts = {
       scaleType: this.schemeType,
       colors: undefined,
       domain: []
@@ -242,7 +252,7 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   }
 
   onActivate(event, group) {
-    let item = Object.assign({}, event);
+    const item = Object.assign({}, event);
     if (group) {
       item.series = group.name;
     }
@@ -259,7 +269,7 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
   }
 
   onDeactivate(event, group) {
-    let item = Object.assign({}, event);
+    const item = Object.assign({}, event);
     if (group) {
       item.series = group.name;
     }

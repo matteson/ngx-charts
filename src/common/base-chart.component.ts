@@ -1,24 +1,20 @@
 import {
-  ElementRef,
-  NgZone,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  AfterViewInit,
-  OnDestroy,
-  OnChanges,
-  SimpleChanges
+  ElementRef, NgZone, ChangeDetectorRef, Component, Input,
+  Output, EventEmitter, AfterViewInit, OnDestroy, OnChanges, SimpleChanges
 } from '@angular/core';
+
 import { Location } from '@angular/common';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/operator/debounceTime';
+import { VisibilityObserver } from '../utils';
 
 @Component({
   selector: 'base-chart',
-  template: ``
+  template: `<div></div>`
 })
 export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
+
   @Input() results: any;
   @Input() view: number[];
   @Input() scheme: any;
@@ -30,20 +26,29 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
   width: number;
   height: number;
   resizeSubscription: any;
+  visibilityObserver: VisibilityObserver;
 
   constructor(
-    protected chartElement: ElementRef, 
-    protected zone: NgZone, 
+    protected chartElement: ElementRef,
+    protected zone: NgZone,
     protected cd: ChangeDetectorRef,
     protected location: Location) {
   }
 
   ngAfterViewInit(): void {
     this.bindWindowResizeEvent();
+
+    // listen for visibility of the element for hidden by default scenario
+    this.visibilityObserver = new VisibilityObserver(this.chartElement, this.zone);
+    this.visibilityObserver.visible.subscribe(this.update.bind(this));
   }
 
   ngOnDestroy(): void {
     this.unbindEvents();
+    if (this.visibilityObserver) {
+      this.visibilityObserver.visible.unsubscribe();
+      this.visibilityObserver.destroy();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -59,9 +64,15 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.width = this.view[0];
       this.height = this.view[1];
     } else {
-      let dims = this.getContainerDims();
-      this.width = dims.width;
-      this.height = dims.height;
+      const dims = this.getContainerDims();
+      if (dims) {
+        this.width = dims.width;
+        this.height = dims.height;
+      }
+    }
+
+    if (!this.width || !this.height) {
+      this.width = this.height = 0;
     }
 
     if (this.cd) {
@@ -70,26 +81,31 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   getContainerDims(): any {
-    let width = 0;
-    let height = 0;
+    let width;
+    let height;
     const hostElem = this.chartElement.nativeElement;
 
     if (hostElem.parentNode !== null) {
       // Get the container dimensions
-      width = hostElem.parentNode.clientWidth;
-      height = hostElem.parentNode.clientHeight;
+      const dims = hostElem.parentNode.getBoundingClientRect();
+      width = dims.width;
+      height = dims.height;
     }
 
-    return { width, height };
+    if (width && height) {
+      return { width, height };
+    }
+    
+    return null;
   }
 
   /**
-   * Converts all date objects that appear as name 
+   * Converts all date objects that appear as name
    * into formatted date strings
    */
   formatDates(): void {
     for (let i = 0; i < this.results.length; i++) {
-      let g = this.results[i];
+      const g = this.results[i];
 
       if (g.name instanceof Date) {
         g.name = g.name.toLocaleDateString();
@@ -97,7 +113,7 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       if (g.series) {
         for (let j = 0; j < g.series.length; j++) {
-          let d = g.series[j];
+          const d = g.series[j];
           if (d.name instanceof Date) {
             d.name = d.name.toLocaleDateString();
           }
@@ -114,8 +130,8 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   private bindWindowResizeEvent(): void {
     this.zone.run(() => {
-      let source = Observable.fromEvent(window, 'resize', null, null);
-      let subscription = source.debounceTime(200).subscribe(e => {
+      const source = Observable.fromEvent(window, 'resize', null, null);
+      const subscription = source.debounceTime(200).subscribe(e => {
         this.update();
         if (this.cd) {
           this.cd.markForCheck();
@@ -135,10 +151,10 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
    * @memberOf BaseChart
    */
   private cloneData(data): any {
-    let results = [];
+    const results = [];
 
-    for (let item of data) {
-      let copy = {
+    for (const item of data) {
+      const copy = {
         name: item['name']
       };
 
@@ -148,8 +164,8 @@ export class BaseChartComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       if (item['series'] !== undefined) {
         copy['series'] = [];
-        for (let seriesItem of item['series']) {
-          let seriesItemCopy = Object.assign({}, seriesItem);
+        for (const seriesItem of item['series']) {
+          const seriesItemCopy = Object.assign({}, seriesItem);
           copy['series'].push(seriesItemCopy);
         }
       }

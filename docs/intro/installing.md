@@ -9,16 +9,12 @@ Also, the release code is checked in and resides [here](https://github.com/swiml
 You will also need to install the peer dependencies of the project:
 
 * `npm install d3 --save`
-* `npm install moment --save`
 
 Check the `package.json` file for the required versions of these dependencies.
 
 ### JavaScript
 - `release/index.js` - UMD Version
 - `release/index.min.js` - UMD Version Minified
-
-### CSS
-Additionally, you will need to include `./release/ngx-charts.css`.
 
 ## Developing
 If you want to run the demos locally, just do:

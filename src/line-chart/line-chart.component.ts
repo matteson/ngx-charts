@@ -3,6 +3,7 @@ import {
   Input,
   Output,
   EventEmitter,
+  ViewEncapsulation,
   HostListener,
   ChangeDetectionStrategy
 } from '@angular/core';
@@ -11,7 +12,6 @@ import { ColorHelper } from '../common/color.helper';
 import { BaseChartComponent } from '../common/base-chart.component';
 import { id } from '../utils/id';
 import d3 from '../d3';
-import * as moment from 'moment';
 
 @Component({
   selector: 'ngx-charts-line-chart',
@@ -40,6 +40,7 @@ import * as moment from 'moment';
           [showGridLines]="showGridLines"
           [showLabel]="showXAxisLabel"
           [labelText]="xAxisLabel"
+          [tickFormatting]="xAxisTickFormatting"
           (dimensionsChanged)="updateXAxisHeight($event)">
         </svg:g>
         <svg:g ngx-charts-y-axis
@@ -49,6 +50,7 @@ import * as moment from 'moment';
           [showGridLines]="showGridLines"
           [showLabel]="showYAxisLabel"
           [labelText]="yAxisLabel"
+          [tickFormatting]="yAxisTickFormatting"
           (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <svg:g [attr.clip-path]="clipPath">
@@ -113,6 +115,8 @@ import * as moment from 'moment';
       </svg:g>
     </ngx-charts-chart>
   `,
+  styleUrls: ['../common/base-chart.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LineChartComponent extends BaseChartComponent {
@@ -136,6 +140,9 @@ export class LineChartComponent extends BaseChartComponent {
   @Input() activeEntries: any[] = [];
   @Input() schemeType: string;
   @Input() rangeFillOpacity: number;
+  @Input() xAxisTickFormatting: any;
+  @Input() yAxisTickFormatting: any;
+  @Input() roundDomains: boolean = false;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -209,7 +216,7 @@ export class LineChartComponent extends BaseChartComponent {
       this.legendOptions = this.getLegendOptions();
 
       this.transform = `translate(${ this.dims.xOffset } , ${ this.margin[0] })`;
-      let pageUrl = this.location.path();
+      const pageUrl = this.location.path();
       this.clipPathId = 'clip' + id().toString();
       this.clipPath = `url(${pageUrl}#${this.clipPathId})`;
     });
@@ -245,7 +252,6 @@ export class LineChartComponent extends BaseChartComponent {
     let domain = [];
 
     if (this.xScaleType === 'time') {
-      values = values.map(v => moment(v).toDate());
       const min = Math.min(...values);
       const max = Math.max(...values);
       domain = [min, max];
@@ -331,7 +337,7 @@ export class LineChartComponent extends BaseChartComponent {
         .domain(domain);
     }
 
-    return scale;
+    return this.roundDomains ? scale.nice() : scale;
   }
 
   getYScale(domain, height): any {
@@ -346,6 +352,8 @@ export class LineChartComponent extends BaseChartComponent {
         .range([height, 0])
         .domain(domain);
     }
+
+    return this.roundDomains ? scale.nice() : scale;
   }
 
   getXScaleType(values): string {
@@ -477,7 +485,7 @@ export class LineChartComponent extends BaseChartComponent {
 
   deactivateAll() {
     this.activeEntries = [...this.activeEntries];
-    for (let entry of this.activeEntries) {
+    for (const entry of this.activeEntries) {
       this.deactivate.emit({ value: entry, entries: [] });
     }
     this.activeEntries = [];

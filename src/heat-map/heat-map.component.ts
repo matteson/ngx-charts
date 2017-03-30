@@ -1,6 +1,7 @@
 import {
   Component,
   Input,
+  ViewEncapsulation,
   ChangeDetectionStrategy
 } from '@angular/core';
 import d3 from '../d3';
@@ -25,6 +26,7 @@ import { ColorHelper } from '../common/color.helper';
           [dims]="dims"
           [showLabel]="showXAxisLabel"
           [labelText]="xAxisLabel"
+          [tickFormatting]="xAxisTickFormatting"
           (dimensionsChanged)="updateXAxisHeight($event)">
         </svg:g>
         <svg:g ngx-charts-y-axis
@@ -33,6 +35,7 @@ import { ColorHelper } from '../common/color.helper';
           [dims]="dims"
           [showLabel]="showYAxisLabel"
           [labelText]="yAxisLabel"
+          [tickFormatting]="yAxisTickFormatting"
           (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <svg:rect *ngFor="let rect of rects"
@@ -55,6 +58,8 @@ import { ColorHelper } from '../common/color.helper';
     </ngx-charts-chart>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['../common/base-chart.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class HeatMapComponent extends BaseChartComponent {
 
@@ -62,10 +67,15 @@ export class HeatMapComponent extends BaseChartComponent {
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
+  @Input() yDomainMin;
+  @Input() yDomainMax;
   @Input() showYAxisLabel;
   @Input() xAxisLabel;
   @Input() yAxisLabel;
   @Input() gradient: boolean;
+  @Input() innerPadding: Number | Number[] = 8;
+  @Input() xAxisTickFormatting: any;
+  @Input() yAxisTickFormatting: any;
 
   dims: ViewDimensions;
   xDomain: any[];
@@ -119,8 +129,8 @@ export class HeatMapComponent extends BaseChartComponent {
   }
 
   getXDomain(): any {
-    let domain = [];
-    for (let group of this.results) {
+    const domain = [];
+    for (const group of this.results) {
       if (!domain.includes(group.name)) {
         domain.push(group.name);
       }
@@ -130,10 +140,10 @@ export class HeatMapComponent extends BaseChartComponent {
   }
 
   getYDomain(): any[] {
-    let domain = [];
+    const domain = [];
 
-    for (let group of this.results) {
-      for (let d of group.series) {
+    for (const group of this.results) {
+      for (const d of group.series) {
         if (!domain.includes(d.name)) {
           domain.push(d.name);
         }
@@ -144,38 +154,47 @@ export class HeatMapComponent extends BaseChartComponent {
   }
 
   getValueDomain(): any[] {
-    let domain = [];
+    const domain = [];
 
-    for (let group of this.results) {
-      for (let d of group.series) {
+    for (const group of this.results) {
+      for (const d of group.series) {
         if (!domain.includes(d.value)) {
           domain.push(d.value);
         }
       }
     }
-
     let min = Math.min(0, ...domain);
+    if (typeof(this.yDomainMin) != "undefined") {
+      min = this.yDomainMin;
+    }
     let max = Math.max(...domain);
+    if (typeof(this.yDomainMax) != "undefined") {
+      max = this.yDomainMax;
+    }
 
     return [min, max];
   }
 
   getXScale(): any {
+    const innerPadding = typeof this.innerPadding === 'number' ? this.innerPadding : this.innerPadding[0];
+    const f = this.xDomain.length / (this.dims.width / innerPadding + 1);
     return d3.scaleBand()
       .rangeRound([0, this.dims.width])
-      .paddingInner(0.1)
-      .domain(this.xDomain);
+      .domain(this.xDomain)
+      .paddingInner(f);
   }
 
   getYScale(): any {
+    const innerPadding = typeof this.innerPadding === 'number' ? this.innerPadding : this.innerPadding[1];
+    const f = this.yDomain.length / (this.dims.height / innerPadding + 1);
     return d3.scaleBand()
       .rangeRound([this.dims.height, 0])
-      .paddingInner(0.1)
-      .domain(this.yDomain);
+      .domain(this.yDomain)
+      .paddingInner(f);
   }
 
   getRects(): any[] {
-    let rects = [];
+    const rects = [];
 
     this.xDomain.map((xVal) => {
       this.yDomain.map((yVal) => {

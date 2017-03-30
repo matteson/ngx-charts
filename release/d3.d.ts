@@ -35,5 +35,8 @@ declare var _default: {
     shape: any;
     treemap: any;
     stratify: any;
+    timeFormat: any;
+    timeParse: any;
+    timeHour: any;
 };
 export default _default;
