@@ -171,7 +171,7 @@ export class HeatMapComponent extends BaseChartComponent {
     if (typeof(this.yDomainMax) != "undefined") {
       max = this.yDomainMax;
     }
-
+    
     return [min, max];
   }
 
