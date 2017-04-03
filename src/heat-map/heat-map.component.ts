@@ -104,9 +104,6 @@ export class HeatMapComponent extends BaseChartComponent {
 
     this.xDomain = this.getXDomain();
     this.yDomain = this.getYDomain();
-    this.valueDomain = this.getValueDomain();
-
-    this.scaleType = this.getScaleType(this.valueDomain);
 
     this.dims = calculateViewDimensions({
       width: this.width,
@@ -125,11 +122,13 @@ export class HeatMapComponent extends BaseChartComponent {
     if (this.scaleType === 'linear') {
       const min = Math.min(0, ...this.valueDomain);
       const max = Math.max(...this.valueDomain);
-      this.valueDomain = [min, max];
+      this.valueDomain = this.getValueDomain();
     }
 
     this.xScale = this.getXScale();
     this.yScale = this.getYScale();
+
+    this.scaleType = this.getScaleType(this.valueDomain);
 
     this.setColors();
     this.legendOptions = this.getLegendOptions();
@@ -174,6 +173,7 @@ export class HeatMapComponent extends BaseChartComponent {
       }
     }
     let min = Math.min(0, ...domain);
+
     if (typeof(this.yDomainMin) != "undefined") {
       min = this.yDomainMin;
     }
@@ -181,7 +181,7 @@ export class HeatMapComponent extends BaseChartComponent {
     if (typeof(this.yDomainMax) != "undefined") {
       max = this.yDomainMax;
     }
-
+    
     return [min, max];
   }
 
