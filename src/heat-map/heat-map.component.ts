@@ -182,7 +182,7 @@ export class HeatMapComponent extends BaseChartComponent {
       max = this.yDomainMax;
     }
 
-    return domain;
+    return [min, max];
   }
 
   /**
@@ -220,6 +220,7 @@ export class HeatMapComponent extends BaseChartComponent {
       return +value.replace('%', '') / 100;
     }
     return N / (L / +value + 1);
+
   }
 
   getXScale(): any {
