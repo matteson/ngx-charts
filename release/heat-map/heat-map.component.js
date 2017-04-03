@@ -25,8 +25,6 @@ var HeatMapComponent = (function (_super) {
         this.formatDates();
         this.xDomain = this.getXDomain();
         this.yDomain = this.getYDomain();
-        this.valueDomain = this.getValueDomain();
-        this.scaleType = this.getScaleType(this.valueDomain);
         this.dims = calculateViewDimensions({
             width: this.width,
             height: this.height,
@@ -43,10 +41,11 @@ var HeatMapComponent = (function (_super) {
         if (this.scaleType === 'linear') {
             var min = Math.min.apply(Math, [0].concat(this.valueDomain));
             var max = Math.max.apply(Math, this.valueDomain);
-            this.valueDomain = [min, max];
+            this.valueDomain = this.getValueDomain();
         }
         this.xScale = this.getXScale();
         this.yScale = this.getYScale();
+        this.scaleType = this.getScaleType(this.valueDomain);
         this.setColors();
         this.legendOptions = this.getLegendOptions();
         this.transform = "translate(" + this.dims.xOffset + " , " + this.margin[0] + ")";
@@ -94,7 +93,7 @@ var HeatMapComponent = (function (_super) {
         if (typeof (this.yDomainMax) != "undefined") {
             max = this.yDomainMax;
         }
-        return domain;
+        return [min, max];
     };
     /**
      * Converts the input to gap paddingInner in fraction
