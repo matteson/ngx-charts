@@ -1,12 +1,11 @@
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, TemplateRef } from '@angular/core';
 import { BaseChartComponent } from '../common/base-chart.component';
 import { ViewDimensions } from '../common/view-dimensions.helper';
 import { ColorHelper } from '../common/color.helper';
 export declare class BubbleChartComponent extends BaseChartComponent {
-    view: number[];
-    results: any;
     showGridLines: boolean;
     legend: boolean;
+    legendTitle: string;
     xAxis: boolean;
     yAxis: boolean;
     showXAxisLabel: boolean;
@@ -24,6 +23,7 @@ export declare class BubbleChartComponent extends BaseChartComponent {
     tooltipDisabled: boolean;
     activate: EventEmitter<any>;
     deactivate: EventEmitter<any>;
+    tooltipTemplate: TemplateRef<any>;
     dims: ViewDimensions;
     colors: ColorHelper;
     scaleType: string;
@@ -65,4 +65,5 @@ export declare class BubbleChartComponent extends BaseChartComponent {
     onActivate(item: any): void;
     onDeactivate(item: any): void;
     deactivateAll(): void;
+    trackBy(index: any, item: any): string;
 }

@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { Component, Input, ViewEncapsulation, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ViewEncapsulation, Output, EventEmitter, ChangeDetectionStrategy, ContentChild } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { calculateViewDimensions } from '../common/view-dimensions.helper';
@@ -14,12 +14,14 @@ var BarHorizontal2DComponent = (function (_super) {
     function BarHorizontal2DComponent() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.legend = false;
+        _this.legendTitle = 'Legend';
         _this.tooltipDisabled = false;
         _this.showGridLines = true;
         _this.activeEntries = [];
         _this.groupPadding = 16;
         _this.barPadding = 8;
         _this.roundDomains = false;
+        _this.roundEdges = true;
         _this.activate = new EventEmitter();
         _this.deactivate = new EventEmitter();
         _this.margin = [10, 20, 10, 20];
@@ -56,7 +58,7 @@ var BarHorizontal2DComponent = (function (_super) {
     BarHorizontal2DComponent.prototype.getGroupScale = function () {
         var spacing = this.groupDomain.length / (this.dims.height / this.groupPadding + 1);
         return scaleBand()
-            .rangeRound([this.dims.height, 0])
+            .rangeRound([0, this.dims.height])
             .paddingInner(spacing)
             .paddingOuter(spacing / 2)
             .domain(this.groupDomain);
@@ -139,11 +141,13 @@ var BarHorizontal2DComponent = (function (_super) {
         var opts = {
             scaleType: this.schemeType,
             colors: undefined,
-            domain: []
+            domain: [],
+            title: undefined
         };
         if (opts.scaleType === 'ordinal') {
             opts.domain = this.innerDomain;
             opts.colors = this.colors;
+            opts.title = this.legendTitle;
         }
         else {
             opts.domain = this.valuesDomain;
@@ -193,13 +197,13 @@ export { BarHorizontal2DComponent };
 BarHorizontal2DComponent.decorators = [
     { type: Component, args: [{
                 selector: 'ngx-charts-bar-horizontal-2d',
-                template: "\n    <ngx-charts-chart\n      [view]=\"[width, height]\"\n      [showLegend]=\"legend\"\n      [legendOptions]=\"legendOptions\"\n      [activeEntries]=\"activeEntries\"\n      (legendLabelActivate)=\"onActivate($event)\"\n      (legendLabelDeactivate)=\"onDeactivate($event)\"\n      (legendLabelClick)=\"onClick($event)\">\n      <svg:g [attr.transform]=\"transform\" class=\"bar-chart chart\">\n        <svg:g ngx-charts-grid-panel-series\n          [xScale]=\"valueScale\"\n          [yScale]=\"groupScale\"\n          [data]=\"results\"\n          [dims]=\"dims\"\n          orient=\"horizontal\">\n        </svg:g>\n        <svg:g ngx-charts-x-axis\n          *ngIf=\"xAxis\"\n          [xScale]=\"valueScale\"\n          [dims]=\"dims\"\n          [showGridLines]=\"showGridLines\"\n          [showLabel]=\"showXAxisLabel\"\n          [labelText]=\"xAxisLabel\"\n          [tickFormatting]=\"xAxisTickFormatting\"\n          (dimensionsChanged)=\"updateXAxisHeight($event)\">\n        </svg:g>\n        <svg:g ngx-charts-y-axis\n          *ngIf=\"yAxis\"\n          [yScale]=\"groupScale\"\n          [dims]=\"dims\"\n          [showLabel]=\"showYAxisLabel\"\n          [labelText]=\"yAxisLabel\"\n          [tickFormatting]=\"yAxisTickFormatting\"\n          (dimensionsChanged)=\"updateYAxisWidth($event)\">\n        </svg:g>\n        <svg:g\n          *ngFor=\"let group of results; trackBy:trackBy\"\n          [@animationState]=\"'active'\"\n          [attr.transform]=\"groupTransform(group)\">\n          <svg:g ngx-charts-series-horizontal\n            [xScale]=\"valueScale\"\n            [activeEntries]=\"activeEntries\"\n            [yScale]=\"innerScale\"\n            [colors]=\"colors\"\n            [series]=\"group.series\"\n            [dims]=\"dims\"\n            [gradient]=\"gradient\"\n            [tooltipDisabled]=\"tooltipDisabled\"\n            [seriesName]=\"group.name\"\n            (select)=\"onClick($event, group)\"\n            (activate)=\"onActivate($event, group)\"\n            (deactivate)=\"onDeactivate($event, group)\"\n          />\n        </svg:g>\n      </svg:g>\n    </ngx-charts-chart>\n  ",
+                template: "\n    <ngx-charts-chart\n      [view]=\"[width, height]\"\n      [showLegend]=\"legend\"\n      [legendOptions]=\"legendOptions\"\n      [activeEntries]=\"activeEntries\"\n      (legendLabelActivate)=\"onActivate($event)\"\n      (legendLabelDeactivate)=\"onDeactivate($event)\"\n      (legendLabelClick)=\"onClick($event)\">\n      <svg:g [attr.transform]=\"transform\" class=\"bar-chart chart\">\n        <svg:g ngx-charts-grid-panel-series\n          [xScale]=\"valueScale\"\n          [yScale]=\"groupScale\"\n          [data]=\"results\"\n          [dims]=\"dims\"\n          orient=\"horizontal\">\n        </svg:g>\n        <svg:g ngx-charts-x-axis\n          *ngIf=\"xAxis\"\n          [xScale]=\"valueScale\"\n          [dims]=\"dims\"\n          [showGridLines]=\"showGridLines\"\n          [showLabel]=\"showXAxisLabel\"\n          [labelText]=\"xAxisLabel\"\n          [tickFormatting]=\"xAxisTickFormatting\"\n          (dimensionsChanged)=\"updateXAxisHeight($event)\">\n        </svg:g>\n        <svg:g ngx-charts-y-axis\n          *ngIf=\"yAxis\"\n          [yScale]=\"groupScale\"\n          [dims]=\"dims\"\n          [showLabel]=\"showYAxisLabel\"\n          [labelText]=\"yAxisLabel\"\n          [tickFormatting]=\"yAxisTickFormatting\"\n          (dimensionsChanged)=\"updateYAxisWidth($event)\">\n        </svg:g>\n        <svg:g\n          *ngFor=\"let group of results; trackBy:trackBy\"\n          [@animationState]=\"'active'\"\n          [attr.transform]=\"groupTransform(group)\">\n          <svg:g ngx-charts-series-horizontal\n            [xScale]=\"valueScale\"\n            [activeEntries]=\"activeEntries\"\n            [yScale]=\"innerScale\"\n            [colors]=\"colors\"\n            [series]=\"group.series\"\n            [dims]=\"dims\"\n            [gradient]=\"gradient\"\n            [tooltipDisabled]=\"tooltipDisabled\"\n            [tooltipTemplate]=\"tooltipTemplate\"\n            [seriesName]=\"group.name\"\n            [roundEdges]=\"roundEdges\"\n            (select)=\"onClick($event, group)\"\n            (activate)=\"onActivate($event, group)\"\n            (deactivate)=\"onDeactivate($event, group)\"\n          />\n        </svg:g>\n      </svg:g>\n    </ngx-charts-chart>\n  ",
                 changeDetection: ChangeDetectionStrategy.OnPush,
                 styleUrls: ['../common/base-chart.component.css'],
                 encapsulation: ViewEncapsulation.None,
                 animations: [
                     trigger('animationState', [
-                        transition('* => void', [
+                        transition(':leave', [
                             style({
                                 opacity: 1,
                                 transform: '*',
@@ -214,6 +218,7 @@ BarHorizontal2DComponent.decorators = [
 BarHorizontal2DComponent.ctorParameters = function () { return []; };
 BarHorizontal2DComponent.propDecorators = {
     'legend': [{ type: Input },],
+    'legendTitle': [{ type: Input },],
     'xAxis': [{ type: Input },],
     'yAxis': [{ type: Input },],
     'showXAxisLabel': [{ type: Input },],
@@ -230,7 +235,9 @@ BarHorizontal2DComponent.propDecorators = {
     'groupPadding': [{ type: Input },],
     'barPadding': [{ type: Input },],
     'roundDomains': [{ type: Input },],
+    'roundEdges': [{ type: Input },],
     'activate': [{ type: Output },],
     'deactivate': [{ type: Output },],
+    'tooltipTemplate': [{ type: ContentChild, args: ['tooltipTemplate',] },],
 };
 //# sourceMappingURL=bar-horizontal-2d.component.js.map

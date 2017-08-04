@@ -4,7 +4,9 @@ import {
   Output,
   ViewEncapsulation,
   EventEmitter,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ContentChild,
+  TemplateRef
 } from '@angular/core';
 import {
   trigger,
@@ -69,7 +71,9 @@ import { BaseChartComponent } from '../common/base-chart.component';
           [dims]="dims"
           [gradient]="gradient"
           [tooltipDisabled]="tooltipDisabled"
+          [tooltipTemplate]="tooltipTemplate"
           [seriesName]="group.name"
+          [roundEdges]="roundEdges"
           (select)="onClick($event, group)"
           (activate)="onActivate($event, group)"
           (deactivate)="onDeactivate($event, group)"
@@ -82,7 +86,7 @@ import { BaseChartComponent } from '../common/base-chart.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('animationState', [
-      transition('* => void', [
+      transition(':leave', [
         style({
           opacity: 1,
           transform: '*',
@@ -95,6 +99,7 @@ import { BaseChartComponent } from '../common/base-chart.component';
 export class BarVertical2DComponent extends BaseChartComponent {
 
   @Input() legend = false;
+  @Input() legendTitle: string = 'Legend';
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
@@ -112,9 +117,12 @@ export class BarVertical2DComponent extends BaseChartComponent {
   @Input() groupPadding = 16;
   @Input() barPadding = 8;
   @Input() roundDomains: boolean = false;
+  @Input() roundEdges: boolean = true;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   groupDomain: any[];
@@ -259,11 +267,13 @@ export class BarVertical2DComponent extends BaseChartComponent {
     const opts = {
       scaleType: this.schemeType,
       colors: undefined,
-      domain: []
+      domain: [],
+      title: undefined
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.innerDomain;
       opts.colors = this.colors;
+      opts.title = this.legendTitle;
     } else {
       opts.domain = this.valuesDomain;
       opts.colors = this.colors.scale;

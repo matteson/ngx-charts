@@ -4,7 +4,9 @@ import {
   Output,
   EventEmitter,
   ViewEncapsulation,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ContentChild,
+  TemplateRef
 } from '@angular/core';
 import { scaleBand, scaleLinear } from 'd3-scale';
 
@@ -51,7 +53,9 @@ import { BaseChartComponent } from '../common/base-chart.component';
           [dims]="dims"
           [gradient]="gradient"
           [tooltipDisabled]="tooltipDisabled"
+          [tooltipTemplate]="tooltipTemplate"
           [activeEntries]="activeEntries"
+          [roundEdges]="roundEdges"
           (select)="onClick($event)"
           (activate)="onActivate($event)"
           (deactivate)="onDeactivate($event)"
@@ -66,6 +70,7 @@ import { BaseChartComponent } from '../common/base-chart.component';
 export class BarHorizontalComponent extends BaseChartComponent {
 
   @Input() legend = false;
+  @Input() legendTitle: string = 'Legend';
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
@@ -81,9 +86,12 @@ export class BarHorizontalComponent extends BaseChartComponent {
   @Input() yAxisTickFormatting: any;
   @Input() barPadding = 8;
   @Input() roundDomains: boolean = false;
+  @Input() roundEdges: boolean = true;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   yScale: any;
@@ -138,7 +146,7 @@ export class BarHorizontalComponent extends BaseChartComponent {
     const spacing = this.yDomain.length / (this.dims.height / this.barPadding + 1);
 
     return scaleBand()
-      .rangeRound([this.dims.height, 0])
+      .rangeRound([0, this.dims.height])
       .paddingInner(spacing)
       .domain(this.yDomain);
   }
@@ -175,11 +183,13 @@ export class BarHorizontalComponent extends BaseChartComponent {
     const opts = {
       scaleType: this.schemeType,
       colors: undefined,
-      domain: []
+      domain: [],
+      title: undefined
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.yDomain;
       opts.colors = this.colors;
+      opts.title = this.legendTitle;
     } else {
       opts.domain = this.xDomain;
       opts.colors = this.colors.scale;

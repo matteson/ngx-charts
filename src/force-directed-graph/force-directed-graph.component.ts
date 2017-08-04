@@ -62,7 +62,9 @@ import { ColorHelper } from '../common/color.helper';
             [tooltipDisabled]="tooltipDisabled"
             [tooltipPlacement]="'top'"
             [tooltipType]="'tooltip'"
-            [tooltipTitle]="node.value">
+            [tooltipTitle]="tooltipTemplate ? undefined : node.value"
+            [tooltipTemplate]="tooltipTemplate"
+            [tooltipContext]="node">
             <ng-template *ngIf="nodeTemplate"
               [ngTemplateOutlet]="nodeTemplate"
               [ngOutletContext]="{ $implicit: node }">
@@ -90,6 +92,7 @@ export class ForceDirectedGraphComponent extends BaseChartComponent {
 
   @Input() forceLink: any = forceLink<any, any>().id(node => node.value);
   @Input() legend: boolean;
+  @Input() legendTitle: string = 'Legend';
   @Input() nodes: any[] = [];
   @Input() links: Array<{ source: any, target: any }> = [];
   @Input() activeEntries: any[] = [];
@@ -100,6 +103,7 @@ export class ForceDirectedGraphComponent extends BaseChartComponent {
 
   @ContentChild('linkTemplate') linkTemplate: TemplateRef<any>;
   @ContentChild('nodeTemplate') nodeTemplate: TemplateRef<any>;
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
   @ViewChild(ChartComponent, { read: ElementRef }) chart: ElementRef;
 
   colors: ColorHelper;
@@ -180,7 +184,8 @@ export class ForceDirectedGraphComponent extends BaseChartComponent {
     return {
       scaleType: 'ordinal',
       domain: this.seriesDomain,
-      colors: this.colors
+      colors: this.colors,
+      title: this.legendTitle
     };
   }
 

@@ -5,8 +5,17 @@ import {
   EventEmitter,
   ViewEncapsulation,
   HostListener,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ContentChild,
+  TemplateRef
 } from '@angular/core';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
 import { PathLocationStrategy } from '@angular/common';
 import { scaleLinear, scaleLog, scaleTime, scalePoint } from 'd3-scale';
 import { curveLinear } from 'd3-shape';
@@ -54,10 +63,13 @@ import { id } from '../utils/id';
           [showLabel]="showYAxisLabel"
           [labelText]="yAxisLabel"
           [tickFormatting]="yAxisTickFormatting"
+          [referenceLines]="referenceLines"
+          [showRefLines]="showRefLines"
+          [showRefLabels]="showRefLabels"
           (dimensionsChanged)="updateYAxisWidth($event)">
         </svg:g>
         <svg:g [attr.clip-path]="clipPath">
-          <svg:g *ngFor="let series of results; trackBy:trackBy">
+          <svg:g *ngFor="let series of results; trackBy:trackBy" [@animationState]="'active'">
             <svg:g ngx-charts-line-series
               [xScale]="xScale"
               [yScale]="yScale"
@@ -67,32 +79,39 @@ import { id } from '../utils/id';
               [scaleType]="xScaleType"
               [curve]="curve"
               [rangeFillOpacity]="rangeFillOpacity"
+              [hasRange]="hasRange"
             />
           </svg:g>
-          <svg:g ngx-charts-area-tooltip
-            [xSet]="xSet"
-            [xScale]="xScale"
-            [yScale]="yScale"
-            [results]="results"
-            [height]="dims.height"
-            [colors]="colors"
-            [tooltipDisabled]="tooltipDisabled"
-            (hover)="updateHoveredVertical($event)"
-          />
-          <svg:g *ngFor="let series of results">
-            <svg:g ngx-charts-circle-series
+
+          <svg:g *ngIf="!tooltipDisabled" (mouseleave)="hideCircles()">
+            <svg:g ngx-charts-tooltip-area
+              [dims]="dims"
+              [xSet]="xSet"
               [xScale]="xScale"
               [yScale]="yScale"
+              [results]="results"
               [colors]="colors"
-              [data]="series"
-              [scaleType]="xScaleType"
-              [visibleValue]="hoveredVertical"
-              [activeEntries]="activeEntries"
               [tooltipDisabled]="tooltipDisabled"
-              (select)="onClick($event, series)"
-              (activate)="onActivate($event)"
-              (deactivate)="onDeactivate($event)"
+              [tooltipTemplate]="seriesTooltipTemplate"
+              (hover)="updateHoveredVertical($event)"
             />
+
+            <svg:g *ngFor="let series of results">
+              <svg:g ngx-charts-circle-series
+                [xScale]="xScale"
+                [yScale]="yScale"
+                [colors]="colors"
+                [data]="series"
+                [scaleType]="scaleType"
+                [visibleValue]="hoveredVertical"
+                [activeEntries]="activeEntries"
+                [tooltipDisabled]="tooltipDisabled"
+                [tooltipTemplate]="tooltipTemplate"
+                (select)="onClick($event, series)"
+                (activate)="onActivate($event)"
+                (deactivate)="onDeactivate($event)"
+              />
+            </svg:g>
           </svg:g>
         </svg:g>
       </svg:g>
@@ -115,6 +134,7 @@ import { id } from '../utils/id';
             [data]="series"
             [scaleType]="xScaleType"
             [curve]="curve"
+            [hasRange]="hasRange"
           />
         </svg:g>
       </svg:g>
@@ -123,10 +143,23 @@ import { id } from '../utils/id';
   styleUrls: ['../common/base-chart.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('animationState', [
+      transition(':leave', [
+        style({
+          opacity: 1,
+        }),
+        animate(500, style({
+          opacity: 0
+        }))
+      ])
+    ])
+  ]
 })
 export class LineChartComponent extends BaseChartComponent {
 
   @Input() legend;
+  @Input() legendTitle: string = 'Legend';
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
@@ -149,9 +182,15 @@ export class LineChartComponent extends BaseChartComponent {
   @Input() yAxisTickFormatting: any;
   @Input() roundDomains: boolean = false;
   @Input() tooltipDisabled: boolean = false;
+  @Input() showRefLines: boolean = false;
+  @Input() referenceLines: any;
+  @Input() showRefLabels: boolean = true;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  @ContentChild('seriesTooltipTemplate') seriesTooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   xSet: any;
@@ -174,7 +213,7 @@ export class LineChartComponent extends BaseChartComponent {
   yAxisWidth: number = 0;
   filteredDomain: any;
   legendOptions: any;
-
+  hasRange: boolean; // whether the line has a min-max range around it
   timelineWidth: any;
   timelineHeight: number = 50;
   timelineXScale: any;
@@ -197,7 +236,7 @@ export class LineChartComponent extends BaseChartComponent {
       showXLabel: this.showXAxisLabel,
       showYLabel: this.showYAxisLabel,
       showLegend: this.legend,
-      legendType: this.schemeType
+      legendType: this.schemeType,
     });
 
     if (this.timeline) {
@@ -232,12 +271,7 @@ export class LineChartComponent extends BaseChartComponent {
 
   updateTimeline(): void {
     if (this.timeline) {
-      this.timelineWidth = this.width;
-
-      if (this.legend) {
-        this.timelineWidth = this.dims.width;
-      }
-
+      this.timelineWidth = this.dims.width;
       this.timelineXDomain = this.getXDomain();
       this.timelineXScale = this.getXScale(this.timelineXDomain, this.timelineWidth);
       this.timelineYScale = this.getYScale(this.yDomain, this.timelineHeight);
@@ -262,7 +296,14 @@ export class LineChartComponent extends BaseChartComponent {
     if (this.xScaleType === 'time') {
       const min = Math.min(...values);
       const max = Math.max(...values);
-      domain = [min, max];
+      domain = [new Date(min), new Date(max)];
+      this.xSet = [...values].sort((a, b) => {
+        const aDate = a.getTime();
+        const bDate = b.getTime();
+        if (aDate > bDate) return 1;
+        if (bDate > aDate) return -1;
+        return 0;
+      });
     } else if (this.xScaleType === 'linear') {
       values = values.map(v => Number(v));
       const min = Math.min(...values);
@@ -273,29 +314,31 @@ export class LineChartComponent extends BaseChartComponent {
       const min = Math.min(...values);
       const max = Math.max(...values);
       domain = [min, max];
+      this.xSet = [...values].sort();
     } else {
       domain = values;
+      this.xSet = values;
     }
 
-    this.xSet = values;
     return domain;
   }
 
   getYDomain(): any[] {
     this.yScaleType = this.getYScaleType();
     const domain = [];
-
     for (const results of this.results) {
       for (const d of results.series){
         if (domain.indexOf(d.value) < 0) {
           domain.push(d.value);
         }
         if (d.min !== undefined) {
+          this.hasRange = true;
           if (domain.indexOf(d.min) < 0) {
             domain.push(d.min);
           }
         }
         if (d.max !== undefined) {
+          this.hasRange = true;
           if (domain.indexOf(d.max) < 0) {
             domain.push(d.max);
           }
@@ -451,11 +494,13 @@ export class LineChartComponent extends BaseChartComponent {
     const opts = {
       scaleType: this.schemeType,
       colors: undefined,
-      domain: []
+      domain: [],
+      title: undefined
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.seriesDomain;
       opts.colors = this.colors;
+      opts.title = this.legendTitle;
     } else {
       opts.domain = this.yDomain;
       opts.colors = this.colors.scale;
@@ -474,6 +519,8 @@ export class LineChartComponent extends BaseChartComponent {
   }
 
   onActivate(item) {
+    this.deactivateAll();
+
     const idx = this.activeEntries.findIndex(d => {
       return d.name === item.name && d.value === item.value;
     });
@@ -481,7 +528,7 @@ export class LineChartComponent extends BaseChartComponent {
       return;
     }
 
-    this.activeEntries = [ item, ...this.activeEntries ];
+    this.activeEntries = [item];
     this.activate.emit({ value: item, entries: this.activeEntries });
   }
 

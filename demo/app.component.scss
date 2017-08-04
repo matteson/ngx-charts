@@ -55,6 +55,15 @@ button {
     outline: none;
     background: #097dff;
   }
+
+  &.btn.btn-link {
+    padding: 0;
+
+    &.active {
+      font-weight: 800;
+      color: #097dff;
+    }
+  }
 }
 
 .arrow-down {
@@ -226,6 +235,14 @@ main {
       stroke: $color-bg-med;
     }
 
+    .refline-path {
+      stroke: $color-bg-light;
+    }
+
+    .reference-area {
+      fill: #fff;
+    }
+
     .grid-panel {
       &.odd {
         rect {
@@ -288,6 +305,10 @@ main {
       }
     }
 
+    .polar-chart .polar-chart-background {
+      fill: rgb(30, 34, 46);
+    }
+
   }
 
   .chart-legend {
@@ -326,6 +347,11 @@ main {
         color: #fff !important;
       }
     }
+  }
+
+  .number-card .number-card-label {
+    font-size: 0.8em;
+    color: $color-text-med;
   }
 
 }

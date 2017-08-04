@@ -5,7 +5,8 @@ import {
   Output,
   EventEmitter,
   OnChanges,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  TemplateRef
 } from '@angular/core';
 import { max } from 'd3-array';
 import { arc, pie } from 'd3-shape';
@@ -46,7 +47,9 @@ import { formatLabel } from '../common/label.helper';
         [tooltipDisabled]="tooltipDisabled"
         [tooltipPlacement]="'top'"
         [tooltipType]="'tooltip'"
-        [tooltipTitle]="tooltipText(arc)">
+        [tooltipTitle]="tooltipTemplate ? undefined : tooltipText(arc)"
+        [tooltipTemplate]="tooltipTemplate"
+        [tooltipContext]="arc.data">
       </svg:g>
     </svg:g>
   `,
@@ -63,8 +66,10 @@ export class PieSeriesComponent implements OnChanges {
   @Input() showLabels;
   @Input() gradient: boolean;
   @Input() activeEntries: any[];
-  @Input() tooltipDisabled: boolean = false;
   @Input() labelFormatting: any;
+  @Input() tooltipText: (o: any) => any;
+  @Input() tooltipDisabled: boolean = false;
+  @Input() tooltipTemplate: TemplateRef<any>;
 
   @Output() select = new EventEmitter();
   @Output() activate = new EventEmitter();
@@ -89,6 +94,7 @@ export class PieSeriesComponent implements OnChanges {
     });
 
     this.data = this.calculateLabelPositions(arcData);
+    this.tooltipText = this.tooltipText || this.defaultTooltipText;
   }
 
   midAngle(d): number {
@@ -148,7 +154,7 @@ export class PieSeriesComponent implements OnChanges {
     return formatLabel(arc.data.name);
   }
 
-  tooltipText(arc) {
+  defaultTooltipText(arc) {
     const label = this.label(arc);
     const val = formatLabel(arc.data.value);
 

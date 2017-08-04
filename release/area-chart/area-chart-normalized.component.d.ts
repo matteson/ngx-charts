@@ -1,9 +1,10 @@
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, TemplateRef } from '@angular/core';
 import { ViewDimensions } from '../common/view-dimensions.helper';
 import { ColorHelper } from '../common/color.helper';
 import { BaseChartComponent } from '../common/base-chart.component';
 export declare class AreaChartNormalizedComponent extends BaseChartComponent {
     legend: boolean;
+    legendTitle: string;
     xAxis: any;
     yAxis: any;
     showXAxisLabel: any;
@@ -22,6 +23,8 @@ export declare class AreaChartNormalizedComponent extends BaseChartComponent {
     tooltipDisabled: boolean;
     activate: EventEmitter<any>;
     deactivate: EventEmitter<any>;
+    tooltipTemplate: TemplateRef<any>;
+    seriesTooltipTemplate: TemplateRef<any>;
     dims: ViewDimensions;
     scaleType: string;
     xDomain: any[];
@@ -67,6 +70,7 @@ export declare class AreaChartNormalizedComponent extends BaseChartComponent {
         scaleType: string;
         colors: any;
         domain: any[];
+        title: any;
     };
     updateYAxisWidth({width}: {
         width: any;

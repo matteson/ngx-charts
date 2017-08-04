@@ -4,7 +4,9 @@ import {
   ViewEncapsulation,
   Output,
   EventEmitter,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ContentChild,
+  TemplateRef
 } from '@angular/core';
 import { scaleBand, scaleLinear } from 'd3-scale';
 
@@ -51,7 +53,9 @@ import { BaseChartComponent } from '../common/base-chart.component';
           [dims]="dims"
           [gradient]="gradient"
           [tooltipDisabled]="tooltipDisabled"
+          [tooltipTemplate]="tooltipTemplate"
           [activeEntries]="activeEntries"
+          [roundEdges]="roundEdges"
           (activate)="onActivate($event)"
           (deactivate)="onDeactivate($event)"
           (select)="onClick($event)">
@@ -66,6 +70,7 @@ import { BaseChartComponent } from '../common/base-chart.component';
 export class BarVerticalComponent extends BaseChartComponent {
 
   @Input() legend = false;
+  @Input() legendTitle: string = 'Legend';
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
@@ -81,9 +86,12 @@ export class BarVerticalComponent extends BaseChartComponent {
   @Input() yAxisTickFormatting: any;
   @Input() barPadding = 8;
   @Input() roundDomains: boolean = false;
+  @Input() roundEdges: boolean = true;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   xScale: any;
@@ -170,11 +178,13 @@ export class BarVerticalComponent extends BaseChartComponent {
     const opts = {
       scaleType: this.schemeType,
       colors: undefined,
-      domain: []
+      domain: [],
+      title: undefined
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.xDomain;
       opts.colors = this.colors;
+      opts.title = this.legendTitle;
     } else {
       opts.domain = this.yDomain;
       opts.colors = this.colors.scale;

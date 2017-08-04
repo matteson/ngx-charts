@@ -1,17 +1,35 @@
+declare var APP_VERSION: string;
+
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Location, LocationStrategy, HashLocationStrategy } from '@angular/common';
 import * as shape from 'd3-shape';
+import * as d3 from 'd3';
 
 import { colorSets } from '../src/utils/color-sets';
-import { single, multi, countries, bubble, generateData, generateGraph } from './data';
+import { formatLabel } from '../src/common/label.helper';
+import { single, multi, bubble, generateData, generateGraph, treemap, timelineFilterBarData } from './data';
+import { data as countries } from 'emoji-flags';
 import chartGroups from './chartTypes';
+import { barChart, lineChartSeries } from './combo-chart-data';
 
 const monthName = new Intl.DateTimeFormat('en-us', { month: 'short' });
 const weekdayName = new Intl.DateTimeFormat('en-us', { weekday: 'short' });
 
+function multiFormat(value) {
+  if (value < 1000) return `${value.toFixed(2)}ms`;
+  value /= 1000;
+  if (value < 60) return `${value.toFixed(2)}s`;
+  value /= 60;
+  if (value < 60) return `${value.toFixed(2)}mins`;
+  value /= 60;
+  return `${value.toFixed(2)}hrs`;
+}
+
 @Component({
   selector: 'app',
+  providers: [Location, {provide: LocationStrategy, useClass: HashLocationStrategy}],
   encapsulation: ViewEncapsulation.None,
-  styleUrls: ['./app.component.scss'],
+  styleUrls: ['../node_modules/@swimlane/ngx-ui/release/index.css', './app.component.scss'],
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
@@ -19,7 +37,7 @@ export class AppComponent implements OnInit {
   version = APP_VERSION;
 
   theme = 'dark';
-  chartType = 'bar-vertical';
+  chartType: string;
   chartGroups: any[];
   chart: any;
   realTimeData: boolean = false;
@@ -29,6 +47,9 @@ export class AppComponent implements OnInit {
   dateData: any[];
   dateDataWithRange: any[];
   calendarData: any[];
+  statusData: any[];
+  sparklineData: any[];
+  timelineFilterBarData: any[];
   graph: { links: any[], nodes: any[] };
   bubble: any;
   linearScale: boolean = false;
@@ -45,6 +66,7 @@ export class AppComponent implements OnInit {
   showYAxis = true;
   gradient = false;
   showLegend = true;
+  legendTitle = 'Legend';
   showXAxisLabel = true;
   tooltipDisabled = false;
   xAxisLabel = 'Country';
@@ -57,6 +79,27 @@ export class AppComponent implements OnInit {
   roundDomains = false;
   maxRadius = 10;
   minRadius = 3;
+  showSeriesOnHover = true;
+  roundEdges: boolean = true;
+
+  curves = {
+    Basis: shape.curveBasis,
+    'Basis Closed': shape.curveBasisClosed,
+    Bundle: shape.curveBundle.beta(1),
+    Cardinal: shape.curveCardinal,
+    'Cardinal Closed': shape.curveCardinalClosed,
+    'Catmull Rom': shape.curveCatmullRom,
+    'Catmull Rom Closed': shape.curveCatmullRomClosed,
+    Linear: shape.curveLinear,
+    'Linear Closed': shape.curveLinearClosed,
+    'Monotone X': shape.curveMonotoneX,
+    'Monotone Y': shape.curveMonotoneY,
+    Natural: shape.curveNatural,
+    Step: shape.curveStep,
+    'Step After': shape.curveStepAfter,
+    'Step Before': shape.curveStepBefore,
+    default: shape.curveLinear
+  };
 
   _yDomainMin = 1000;
   _yDomainMax = 10000;
@@ -70,10 +113,16 @@ export class AppComponent implements OnInit {
   ];
   // line interpolation
   curveType: string = 'Linear';
-  curve: any = shape.curveLinear;
+  curve: any = this.curves[this.curveType];
   interpolationTypes = [
     'Basis', 'Bundle', 'Cardinal', 'Catmull Rom', 'Linear', 'Monotone X',
     'Monotone Y', 'Natural', 'Step', 'Step After', 'Step Before'
+  ];
+
+  closedCurveType: string = 'Linear Closed';
+  closedCurve: any = this.curves[this.closedCurveType];
+  closedInterpolationTypes = [
+    'Basis Closed', 'Cardinal Closed', 'Catmull Rom Closed', 'Linear Closed'
   ];
 
   colorSets: any;
@@ -120,7 +169,56 @@ export class AppComponent implements OnInit {
   gaugeValue: number = 50; // linear gauge value
   gaugePreviousValue: number = 70;
 
-  constructor() {
+  // Combo Chart
+  barChart: any[] = barChart;
+  lineChartSeries: any[] = lineChartSeries;
+  lineChartScheme = {
+    name: 'coolthree',
+    selectable: true,
+    group: 'Ordinal',
+    domain: [
+      '#01579b', '#7aa3e5', '#a8385d', '#00bfa5'
+    ]
+  };
+
+  comboBarScheme = {
+    name: 'singleLightBlue',
+    selectable: true,
+    group: 'Ordinal',
+    domain: [
+      '#01579b'
+    ]
+  };
+
+  showRightYAxisLabel: boolean = true;
+  yAxisLabelRight: string = 'Utilization';
+
+  // demos
+  totalSales = 0;
+  salePrice = 100;
+  personnelCost = 100;
+
+  mathText = '3 - 1.5*sin(x) + cos(2*x) - 1.5*abs(cos(x))';
+  mathFunction: (o: any) => any;
+
+  treemap: any[];
+  treemapPath: any[] = [];
+  sumBy: string = 'Size';
+
+  // Reference lines
+  showRefLines: boolean = true;
+  showRefLabels: boolean = true;
+
+  // Supports any number of reference lines.
+  refLines = [
+    { value: 42500, name: 'Maximum' },
+    { value: 37750, name: 'Average' },
+    { value: 33000, name: 'Minimum' }
+  ];
+
+  constructor(public location: Location) {
+    this.mathFunction = this.getFunction();
+
     Object.assign(this, {
       single,
       multi,
@@ -128,13 +226,20 @@ export class AppComponent implements OnInit {
       chartGroups,
       colorSets,
       graph: generateGraph(50),
-      bubble
+      bubble,
+      plotData: this.generatePlotData(),
+      treemap
     });
+
+    this.treemapProcess();
 
     this.dateData = generateData(5, false);
     this.dateDataWithRange = generateData(2, true);
     this.setColorScheme('cool');
     this.calendarData = this.getCalendarData();
+    this.statusData = this.getStatusData();
+    this.sparklineData = generateData(1, false, 30);
+    this.timelineFilterBarData = timelineFilterBarData();
   }
 
   get dateDataWithOrWithoutRange() {
@@ -143,11 +248,11 @@ export class AppComponent implements OnInit {
     } else {
       return this.dateData;
     }
-
   }
 
   ngOnInit() {
-    this.selectChart(this.chartType);
+    const state = this.location.path(true);
+    this.selectChart(state.length ? state : 'bar-vertical');
 
     setInterval(this.updateData.bind(this), 1000);
 
@@ -203,55 +308,64 @@ export class AppComponent implements OnInit {
     if (add) {
       // single
       const entry = {
-        name: country,
+        name: country.name,
         value: Math.floor(10000 + Math.random() * 50000)
       };
       this.single = [...this.single, entry];
 
       // multi
       const multiEntry = {
-        name: country,
+        name: country.name,
         series: [{
-          name: '2010',
-          value: Math.floor(1000000 + Math.random() * 20000000)
+          name: '1990',
+          value: Math.floor(10000 + Math.random() * 50000)
         }, {
-          name: '2011',
-          value: Math.floor(1000000 + Math.random() * 20000000)
+          name: '2000',
+          value: Math.floor(10000 + Math.random() * 50000)
+        }, {
+          name: '2010',
+          value: Math.floor(10000 + Math.random() * 50000)
         }]
       };
 
       this.multi = [...this.multi, multiEntry];
 
       // graph
-      const node = { value: country };
+      const node = { value: country.name };
       const nodes = [ ...this.graph.nodes, node];
       const link = {
-        source: country,
+        source: country.name,
         target: nodes[Math.floor(Math.random() * (nodes.length - 1))].value,
       };
       const links = [ ...this.graph.links, link];
       this.graph = { links, nodes };
 
       // bubble
+      const bubbleYear = Math.floor((2010 - 1990) * Math.random() + 1990);
       const bubbleEntry = {
-        name: country,
+        name: country.name,
         series: [{
-          name: '2010',
-          x: Math.floor(10000 + Math.random() * 20000),
-          y: Math.floor(30 + Math.random() * 70),
-          r: Math.floor(30 + Math.random() * 20),
-        }, {
-          name: '2011',
-          x: Math.floor(10000 + Math.random() * 20000),
+          name: '' + bubbleYear,
+          x: new Date(bubbleYear, 0, 1),
           y: Math.floor(30 + Math.random() * 70),
           r: Math.floor(30 + Math.random() * 20),
         }]
       };
 
       this.bubble = [...this.bubble, bubbleEntry];
+
+      this.statusData = this.getStatusData();
     }
 
-    this.dateData = generateData(5, false);
+    const date = new Date(Math.floor(1473700105009 +  Math.random() * 1000000000));
+    for (const series of this.dateData) {
+      series.series.push({
+        name: date,
+        value: Math.floor(2000 + Math.random() * 5000)
+      });
+    }
+    this.dateData = [...this.dateData];
+
     this.dateDataWithRange = generateData(2, true);
 
     if (this.chart.inputFormat === 'calendarData') this.calendarData = this.getCalendarData();
@@ -289,41 +403,25 @@ export class AppComponent implements OnInit {
   }
 
   selectChart(chartSelector) {
-    this.chartType = chartSelector;
+    this.chartType = chartSelector = chartSelector.replace('/', '');
+    this.location.replaceState(this.chartType);
 
-    this.linearScale = this.chartType === 'line-chart' ||
-      this.chartType === 'line-chart-with-ranges' ||
-      this.chartType === 'area-chart' ||
-      this.chartType === 'area-chart-normalized' ||
-      this.chartType === 'area-chart-stacked';
-
-    if (this.chartType === 'bubble-chart') {
-      this.xAxisLabel = 'GDP Per Capita';
-      this.yAxisLabel = 'Life expectancy [years]';
-    } else {
-      this.yAxisLabel = 'GDP Per Capita';
-      this.xAxisLabel = 'Country';
+    for (const group of this.chartGroups) {
+      this.chart = group.charts.find(x => x.selector === chartSelector);
+      if (this.chart) break;
     }
 
-    if (this.chartType === 'calendar') {
-      this.width = 1100;
-      this.height = 200;
-    } else {
-      this.width = 700;
-      this.height = 300;
-    }
+    this.linearScale = false;
+    this.yAxisLabel = 'GDP Per Capita';
+    this.xAxisLabel = 'Country';
+
+    this.width = 700;
+    this.height = 300;
+
+    Object.assign(this, this.chart.defaults);
 
     if (!this.fitContainer) {
       this.applyDimensions();
-    }
-
-    for (const group of this.chartGroups) {
-      for (const chart of group.charts) {
-        if (chart.selector === chartSelector) {
-          this.chart = chart;
-          return;
-        }
-      }
     }
   }
 
@@ -331,41 +429,8 @@ export class AppComponent implements OnInit {
     console.log('Item clicked', data);
   }
 
-  setInterpolationType(curveType) {
-    this.curveType = curveType;
-    if (curveType === 'Basis') {
-      this.curve = shape.curveBasis;
-    }
-    if (curveType === 'Bundle') {
-      this.curve = shape.curveBundle.beta(1);
-    }
-    if (curveType === 'Cardinal') {
-      this.curve = shape.curveCardinal;
-    }
-    if (curveType === 'Catmull Rom') {
-      this.curve = shape.curveCatmullRom;
-    }
-    if (curveType === 'Linear') {
-      this.curve = shape.curveLinear;
-    }
-    if (curveType === 'Monotone X') {
-      this.curve = shape.curveMonotoneX;
-    }
-    if (curveType === 'Monotone Y') {
-      this.curve = shape.curveMonotoneY;
-    }
-    if (curveType === 'Natural') {
-      this.curve = shape.curveNatural;
-    }
-    if (curveType === 'Step') {
-      this.curve = shape.curveStep;
-    }
-    if (curveType === 'Step After') {
-      this.curve = shape.curveStepAfter;
-    }
-    if (curveType === 'Step Before') {
-      this.curve = shape.curveStepBefore;
-    }
+  getInterpolationType(curveType) {
+    return this.curves[curveType] || this.curves['default'];
   }
 
   setYAxisTransform(transformType) {
@@ -426,7 +491,7 @@ export class AppComponent implements OnInit {
       }
 
       calendarData.push({
-        name: `Week of ${monday.toLocaleDateString()}`,
+        name: monday.toString(),
         series
       });
     }
@@ -435,7 +500,7 @@ export class AppComponent implements OnInit {
   }
 
   calendarAxisTickFormatting(mondayString: string) {
-    const monday = new Date(mondayString.replace('Week of ', ''));
+    const monday = new Date(mondayString);
     const month = monday.getMonth();
     const day = monday.getDate();
     const year = monday.getFullYear();
@@ -449,6 +514,190 @@ export class AppComponent implements OnInit {
       <span class="tooltip-label">${c.label} • ${c.cell.date.toLocaleDateString()}</span>
       <span class="tooltip-val">${c.data.toLocaleString()}</span>
     `;
+  }
+
+  pieTooltipText({data}) {
+    const label = formatLabel(data.name);
+    const val = formatLabel(data.value);
+
+    return `
+      <span class="tooltip-label">${label}</span>
+      <span class="tooltip-val">$${val}</span>
+    `;
+  }
+
+  dollarValueFormat(c): string {
+    return `\$${c.value.toLocaleString()}`;
+  }
+
+  getStatusData() {
+    const sales = Math.round(1E4 * Math.random());
+    const dur = 36E5 * Math.random();
+    return this.calcStatusData(sales, dur);
+  }
+
+  calcStatusData(sales = this.statusData[0].value, dur = this.statusData[2].value) {
+    const ret = sales * this.salePrice;
+    const cost = sales * dur / 60 / 60 / 1000 * this.personnelCost;
+    const ROI = (ret - cost) / cost;
+    return [
+      {
+        name: 'Sales',
+        value: sales
+      },
+      {
+        name: 'Gross',
+        value: ret,
+        extra: { format: 'currency' }
+      },
+      {
+        name: 'Avg. Time',
+        value: dur,
+        extra: { format: 'time' }
+      },
+      {
+        name: 'Cost',
+        value: cost,
+        extra: { format: 'currency' }
+      },
+      {
+        name: 'ROI',
+        value: ROI,
+        extra: { format: 'percent' }
+      }
+    ];
+  }
+
+  statusValueFormat(c): string {
+    switch(c.data.extra ? c.data.extra.format : '') {
+      case 'currency':
+        return `\$${Math.round(c.value).toLocaleString()}`;
+      case 'time':
+        return multiFormat(c.value);
+      case 'percent':
+        return `${Math.round(c.value * 100)}%`;
+      default:
+        return c.value.toLocaleString();
+    }
+  }
+
+  currencyFormatting(c) {
+    return `\$${Math.round(c.value).toLocaleString()}`;
+  }
+
+  gdpLabelFormatting(c) {
+    return `${c.label}<br/><small class="number-card-label">GDP Per Capita</small>`;
+  }
+
+  statusLabelFormat(c): string {
+    return `${c.label}<br/><small class="number-card-label">This week</small>`;
+  }
+
+  generatePlotData() {
+    if (!this.mathFunction) {
+      return [];
+    }
+    const twoPi = 2 * Math.PI;
+    const length = 25;
+    const series = Array.apply(null, { length })
+      .map((d, i) => {
+        const x = i / (length - 1);
+        const t = x * twoPi;
+        return {
+          name: ~~(x * 360),
+          value: this.mathFunction(t)
+        };
+      });
+
+    return [{
+      name: this.mathText,
+      series
+    }];
+  }
+
+  getFunction(text = this.mathText) {
+    try {
+      text = `with (Math) { return ${this.mathText} }`;
+      const fn = new Function('x', text).bind(Math);
+      return (typeof fn(1) === 'number') ? fn : null;
+    } catch(err) {
+      return null;
+    }
+  }
+
+  treemapProcess(sumBy = this.sumBy) {
+    this.sumBy = sumBy;
+    const children = treemap[0];
+    const value = (sumBy === 'Size') ? sumChildren(children) : countChildren(children);
+    this.treemap = [children];
+    this.treemapPath = [{name: 'Top', children: [children], value }];
+
+    function sumChildren(node) {
+      return node.value = node.size || d3.sum(node.children, sumChildren);
+    }
+
+    function countChildren(node) {
+      return node.value = node.children ? d3.sum(node.children, countChildren) : 1;
+    }
+  }
+
+  treemapSelect(item) {
+    let node;
+    if (item.children) {
+      const idx = this.treemapPath.indexOf(item);
+      this.treemapPath.splice(idx + 1);
+      this.treemap = this.treemapPath[idx].children;
+      return;
+    }
+    node = this.treemap.find(d => d.name === item.name);
+    if (node.children) {
+      this.treemapPath.push(node);
+      this.treemap = node.children;
+    }
+  }
+
+  getFlag(country) {
+    return this.countries.find(c => c.name === country).emoji;
+  }
+
+  onFilter(event) {
+    console.log('timeline filter', event);
+  }
+
+  /*
+  **
+  Combo Chart
+  **
+  [yLeftAxisScaleFactor]="yLeftAxisScale" and [yRightAxisScaleFactor]="yRightAxisScale"
+  exposes the left and right min and max axis values for custom scaling, it is probably best to
+  scale one axis in relation to the other axis but for flexibility to scale either the left or
+  right axis bowth were exposed.
+  **
+  */
+
+  yLeftAxisScale(min, max) {
+    return {min: `${min}`, max: `${max}`};
+  }
+
+  yRightAxisScale(min, max) {
+    return {min: `${min}`, max: `${max}`};
+  }
+
+  yLeftTickFormat(data) {
+    return `${data.toLocaleString()}`;
+  }
+
+  yRightTickFormat(data) {
+    return `${data}%`;
+  }
+  /*
+  **
+  End of Combo Chart
+  **
+  */
+
+  onSelect(event) {
+    console.log(event);
   }
 
 }

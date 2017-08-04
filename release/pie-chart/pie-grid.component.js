@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { Component, Input, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ViewEncapsulation, ChangeDetectionStrategy, ContentChild } from '@angular/core';
 import { min } from 'd3-array';
 import { format } from 'd3-format';
 import { calculateViewDimensions } from '../common/view-dimensions.helper';
@@ -32,8 +32,12 @@ var PieGridComponent = (function (_super) {
         this.transform = "translate(" + this.margin[3] + " , " + this.margin[0] + ")";
         this.series = this.getSeries();
         this.setColors();
+        this.tooltipText = this.tooltipText || this.defaultTooltipText;
     };
-    PieGridComponent.prototype.getTooltipText = function (label, val) {
+    PieGridComponent.prototype.defaultTooltipText = function (_a) {
+        var data = _a.data;
+        var label = trimLabel(formatLabel(data.name));
+        var val = data.value.toLocaleString();
         return "\n      <span class=\"tooltip-label\">" + label + "</span>\n      <span class=\"tooltip-val\">" + val + "</span>\n    ";
     };
     PieGridComponent.prototype.getDomain = function () {
@@ -45,7 +49,8 @@ var PieGridComponent = (function (_super) {
         return this.data.map(function (d) {
             var baselineLabelHeight = 20;
             var padding = 10;
-            var label = formatLabel(d.data.name);
+            var name = d.data.name;
+            var label = formatLabel(name);
             var value = d.data.value;
             var radius = (min([d.width - padding, d.height - baselineLabelHeight]) / 2) - 5;
             var innerRadius = radius * 0.9;
@@ -66,6 +71,7 @@ var PieGridComponent = (function (_super) {
                 colors: colors,
                 innerRadius: innerRadius,
                 outerRadius: radius,
+                name: name,
                 label: trimLabel(label),
                 total: value,
                 value: value,
@@ -97,7 +103,7 @@ export { PieGridComponent };
 PieGridComponent.decorators = [
     { type: Component, args: [{
                 selector: 'ngx-charts-pie-grid',
-                template: "\n    <ngx-charts-chart\n      [view]=\"[width, height]\"\n      [showLegend]=\"false\">\n      <svg:g [attr.transform]=\"transform\" class=\"pie-grid chart\">\n        <svg:g\n          *ngFor=\"let series of series\"\n          class=\"pie-grid-item\"\n          [attr.transform]=\"series.transform\">\n          <svg:g ngx-charts-pie-grid-series\n            [colors]=\"series.colors\"\n            [data]=\"series.data\"\n            [innerRadius]=\"series.innerRadius\"\n            [outerRadius]=\"series.outerRadius\"\n            (select)=\"onClick($event)\"\n            ngx-tooltip\n            [tooltipDisabled]=\"tooltipDisabled\"\n            [tooltipPlacement]=\"'top'\"\n            [tooltipType]=\"'tooltip'\"\n            [tooltipTitle]=\"getTooltipText(series.label, series.value.toLocaleString())\"\n          />\n          <svg:text\n            class=\"label percent-label\"\n            dy=\"-0.5em\"\n            x=\"0\"\n            y=\"5\"\n            ngx-charts-count-up\n            [countTo]=\"series.percent\"\n            [countSuffix]=\"'%'\"\n            text-anchor=\"middle\">\n          </svg:text>\n          <svg:text\n            class=\"label\"\n            dy=\"0.5em\"\n            x=\"0\"\n            y=\"5\"\n            text-anchor=\"middle\">\n            {{series.label}}\n          </svg:text>\n          <svg:text\n            class=\"label\"\n            dy=\"1.23em\"\n            x=\"0\"\n            [attr.y]=\"series.outerRadius\"\n            text-anchor=\"middle\"\n            ngx-charts-count-up\n            [countTo]=\"series.total\"\n            [countPrefix]=\"'Total: '\">\n          </svg:text>\n        </svg:g>\n      </svg:g>\n    </ngx-charts-chart>\n  ",
+                template: "\n    <ngx-charts-chart\n      [view]=\"[width, height]\"\n      [showLegend]=\"false\">\n      <svg:g [attr.transform]=\"transform\" class=\"pie-grid chart\">\n        <svg:g\n          *ngFor=\"let series of series\"\n          class=\"pie-grid-item\"\n          [attr.transform]=\"series.transform\">\n          <svg:g ngx-charts-pie-grid-series\n            [colors]=\"series.colors\"\n            [data]=\"series.data\"\n            [innerRadius]=\"series.innerRadius\"\n            [outerRadius]=\"series.outerRadius\"\n            (select)=\"onClick($event)\"\n            ngx-tooltip\n            [tooltipDisabled]=\"tooltipDisabled\"\n            [tooltipPlacement]=\"'top'\"\n            [tooltipType]=\"'tooltip'\"\n            [tooltipTitle]=\"tooltipTemplate ? undefined : tooltipText({data: series})\"\n            [tooltipTemplate]=\"tooltipTemplate\"\n            [tooltipContext]=\"series.data[0].data\"\n          />\n          <svg:text\n            class=\"label percent-label\"\n            dy=\"-0.5em\"\n            x=\"0\"\n            y=\"5\"\n            ngx-charts-count-up\n            [countTo]=\"series.percent\"\n            [countSuffix]=\"'%'\"\n            text-anchor=\"middle\">\n          </svg:text>\n          <svg:text\n            class=\"label\"\n            dy=\"0.5em\"\n            x=\"0\"\n            y=\"5\"\n            text-anchor=\"middle\">\n            {{series.label}}\n          </svg:text>\n          <svg:text\n            class=\"label\"\n            dy=\"1.23em\"\n            x=\"0\"\n            [attr.y]=\"series.outerRadius\"\n            text-anchor=\"middle\"\n            ngx-charts-count-up\n            [countTo]=\"series.total\"\n            [countPrefix]=\"'Total: '\">\n          </svg:text>\n        </svg:g>\n      </svg:g>\n    </ngx-charts-chart>\n  ",
                 styleUrls: [
                     '../common/base-chart.component.css',
                     './pie-grid.component.css'
@@ -110,5 +116,7 @@ PieGridComponent.decorators = [
 PieGridComponent.ctorParameters = function () { return []; };
 PieGridComponent.propDecorators = {
     'tooltipDisabled': [{ type: Input },],
+    'tooltipText': [{ type: Input },],
+    'tooltipTemplate': [{ type: ContentChild, args: ['tooltipTemplate',] },],
 };
 //# sourceMappingURL=pie-grid.component.js.map

@@ -12,15 +12,37 @@ export declare const multi: {
 export declare const bubble: {
     name: string;
     series: {
-        name: Date;
+        name: string;
         x: Date;
         y: number;
         r: number;
     }[];
 }[];
-export declare const countries: string[];
 export declare function generateGraph(nodeCount: number): {
     links: any[];
     nodes: any[];
 };
-export declare function generateData(seriesLength: number, includeMinMaxRange: boolean): any[];
+export declare function timelineFilterBarData(): any[];
+export declare function generateData(seriesLength: number, includeMinMaxRange: boolean, dataPoints?: number): any[];
+export declare const treemap: {
+    name: string;
+    children: {
+        name: string;
+        children: ({
+            name: string;
+            children: ({
+                name: string;
+                size: number;
+            } | {
+                name: string;
+                children: {
+                    name: string;
+                    size: number;
+                }[];
+            })[];
+        } | {
+            name: string;
+            size: number;
+        })[];
+    }[];
+}[];

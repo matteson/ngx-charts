@@ -23,6 +23,7 @@
       * [Area Chart](charts/area-chart.md)
       * [Stacked Area Chart](charts/area-chart-stacked.md)
       * [Normalized Area Chart](charts/area-chart-normalized.md)
+   * [Polar/radar Chart](charts/polar-chart.md)
    * [Heat Map Chart](charts/heat-map.md)
    * [Tree Map Chart](charts/tree-map.md)
    * [Number Card Chart](charts/number-card.md)
@@ -31,6 +32,7 @@
    * [DAG Chart](https://github.com/swimlane/ngx-charts-dag)
 * Contributing
    * [Building](contributing/building.md)
+   * [Troubleshooting](contributing/troubleshooting.md)
    * [Guidelines](contributing/guidelines.md)
    * [Community](contributing/community.md)
    * [Credits](contributing/credits.md)

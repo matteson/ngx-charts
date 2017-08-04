@@ -1,9 +1,10 @@
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, TemplateRef } from '@angular/core';
 import { ViewDimensions } from '../common/view-dimensions.helper';
 import { ColorHelper } from '../common/color.helper';
 import { BaseChartComponent } from '../common/base-chart.component';
 export declare class BarHorizontal2DComponent extends BaseChartComponent {
     legend: boolean;
+    legendTitle: string;
     xAxis: any;
     yAxis: any;
     showXAxisLabel: any;
@@ -20,8 +21,10 @@ export declare class BarHorizontal2DComponent extends BaseChartComponent {
     groupPadding: number;
     barPadding: number;
     roundDomains: boolean;
+    roundEdges: boolean;
     activate: EventEmitter<any>;
     deactivate: EventEmitter<any>;
+    tooltipTemplate: TemplateRef<any>;
     dims: ViewDimensions;
     groupDomain: any[];
     innerDomain: any[];
@@ -50,6 +53,7 @@ export declare class BarHorizontal2DComponent extends BaseChartComponent {
         scaleType: string;
         colors: any;
         domain: any[];
+        title: any;
     };
     updateYAxisWidth({width}: {
         width: any;

@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { Component, Input, Output, ViewEncapsulation, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, ViewEncapsulation, EventEmitter, ChangeDetectionStrategy, ContentChild } from '@angular/core';
 import { calculateViewDimensions } from '../common/view-dimensions.helper';
 import { ColorHelper } from '../common/color.helper';
 import { BaseChartComponent } from '../common/base-chart.component';
@@ -13,6 +13,7 @@ var PieChartComponent = (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.labels = false;
         _this.legend = false;
+        _this.legendTitle = 'Legend';
         _this.explodeSlices = false;
         _this.doughnut = false;
         _this.arcWidth = 0.25;
@@ -85,7 +86,8 @@ var PieChartComponent = (function (_super) {
         return {
             scaleType: 'ordinal',
             domain: this.domain,
-            colors: this.colors
+            colors: this.colors,
+            title: this.legendTitle
         };
     };
     PieChartComponent.prototype.onActivate = function (item) {
@@ -112,7 +114,7 @@ export { PieChartComponent };
 PieChartComponent.decorators = [
     { type: Component, args: [{
                 selector: 'ngx-charts-pie-chart',
-                template: "\n    <ngx-charts-chart\n      [view]=\"[width, height]\"\n      [showLegend]=\"legend\"\n      [legendOptions]=\"legendOptions\"\n      [activeEntries]=\"activeEntries\"\n      (legendLabelActivate)=\"onActivate($event)\"\n      (legendLabelDeactivate)=\"onDeactivate($event)\"\n      (legendLabelClick)=\"onClick($event)\">\n      <svg:g [attr.transform]=\"translation\" class=\"pie-chart chart\">\n        <svg:g ngx-charts-pie-series\n          [colors]=\"colors\"\n          [showLabels]=\"labels\"\n          [labelFormatting]=\"labelFormatting\"\n          [series]=\"data\"\n          [activeEntries]=\"activeEntries\"\n          [innerRadius]=\"innerRadius\"\n          [outerRadius]=\"outerRadius\"\n          [explodeSlices]=\"explodeSlices\"\n          [gradient]=\"gradient\"\n          [tooltipDisabled]=\"tooltipDisabled\"\n          (select)=\"onClick($event)\"\n          (activate)=\"onActivate($event)\"\n          (deactivate)=\"onDeactivate($event)\"\n        />\n      </svg:g>\n    </ngx-charts-chart>\n  ",
+                template: "\n    <ngx-charts-chart\n      [view]=\"[width, height]\"\n      [showLegend]=\"legend\"\n      [legendOptions]=\"legendOptions\"\n      [activeEntries]=\"activeEntries\"\n      (legendLabelActivate)=\"onActivate($event)\"\n      (legendLabelDeactivate)=\"onDeactivate($event)\"\n      (legendLabelClick)=\"onClick($event)\">\n      <svg:g [attr.transform]=\"translation\" class=\"pie-chart chart\">\n        <svg:g ngx-charts-pie-series\n          [colors]=\"colors\"\n          [showLabels]=\"labels\"\n          [labelFormatting]=\"labelFormatting\"\n          [series]=\"data\"\n          [activeEntries]=\"activeEntries\"\n          [innerRadius]=\"innerRadius\"\n          [outerRadius]=\"outerRadius\"\n          [explodeSlices]=\"explodeSlices\"\n          [gradient]=\"gradient\"\n          [tooltipDisabled]=\"tooltipDisabled\"\n          [tooltipTemplate]=\"tooltipTemplate\"\n          [tooltipText]=\"tooltipText\"\n          (select)=\"onClick($event)\"\n          (activate)=\"onActivate($event)\"\n          (deactivate)=\"onDeactivate($event)\"\n        />\n      </svg:g>\n    </ngx-charts-chart>\n  ",
                 styleUrls: [
                     '../common/base-chart.component.css',
                     './pie-chart.component.css'
@@ -126,6 +128,7 @@ PieChartComponent.ctorParameters = function () { return []; };
 PieChartComponent.propDecorators = {
     'labels': [{ type: Input },],
     'legend': [{ type: Input },],
+    'legendTitle': [{ type: Input },],
     'explodeSlices': [{ type: Input },],
     'doughnut': [{ type: Input },],
     'arcWidth': [{ type: Input },],
@@ -133,8 +136,10 @@ PieChartComponent.propDecorators = {
     'activeEntries': [{ type: Input },],
     'tooltipDisabled': [{ type: Input },],
     'labelFormatting': [{ type: Input },],
+    'tooltipText': [{ type: Input },],
     'select': [{ type: Output },],
     'activate': [{ type: Output },],
     'deactivate': [{ type: Output },],
+    'tooltipTemplate': [{ type: ContentChild, args: ['tooltipTemplate',] },],
 };
 //# sourceMappingURL=pie-chart.component.js.map

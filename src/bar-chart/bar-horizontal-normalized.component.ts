@@ -4,7 +4,9 @@ import {
   Output,
   ViewEncapsulation,
   EventEmitter,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ContentChild,
+  TemplateRef
 } from '@angular/core';
 import {
   trigger,
@@ -65,6 +67,7 @@ import { BaseChartComponent } from '../common/base-chart.component';
             [dims]="dims"
             [gradient]="gradient"
             [tooltipDisabled]="tooltipDisabled"
+            [tooltipTemplate]="tooltipTemplate"
             [seriesName]="group.name"
             (select)="onClick($event, group)"
             (activate)="onActivate($event, group)"
@@ -79,7 +82,7 @@ import { BaseChartComponent } from '../common/base-chart.component';
   encapsulation: ViewEncapsulation.None,
   animations: [
     trigger('animationState', [
-      transition('* => void', [
+      transition(':leave', [
         style({
           opacity: 1,
           transform: '*',
@@ -92,6 +95,7 @@ import { BaseChartComponent } from '../common/base-chart.component';
 export class BarHorizontalNormalizedComponent extends BaseChartComponent {
 
   @Input() legend = false;
+  @Input() legendTitle: string = 'Legend';
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
@@ -110,6 +114,8 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   groupDomain: any[];
@@ -190,7 +196,7 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
     const spacing = this.groupDomain.length / (this.dims.height / this.barPadding + 1);
 
     return scaleBand()
-      .rangeRound([this.dims.height, 0])
+      .rangeRound([0, this.dims.height])
       .paddingInner(spacing)
       .domain(this.groupDomain);
   }
@@ -233,11 +239,13 @@ export class BarHorizontalNormalizedComponent extends BaseChartComponent {
     const opts = {
       scaleType: this.schemeType,
       colors: undefined,
-      domain: []
+      domain: [],
+      title: undefined
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.innerDomain;
       opts.colors = this.colors;
+      opts.title = this.legendTitle;
     } else {
       opts.domain = this.valueDomain;
       opts.colors = this.colors.scale;

@@ -6,6 +6,7 @@ export declare class ForceDirectedGraphComponent extends BaseChartComponent {
     force: any;
     forceLink: any;
     legend: boolean;
+    legendTitle: string;
     nodes: any[];
     links: Array<{
         source: any;
@@ -17,6 +18,7 @@ export declare class ForceDirectedGraphComponent extends BaseChartComponent {
     deactivate: EventEmitter<any>;
     linkTemplate: TemplateRef<any>;
     nodeTemplate: TemplateRef<any>;
+    tooltipTemplate: TemplateRef<any>;
     chart: ElementRef;
     colors: ColorHelper;
     dims: ViewDimensions;
@@ -43,6 +45,7 @@ export declare class ForceDirectedGraphComponent extends BaseChartComponent {
         scaleType: string;
         domain: any;
         colors: ColorHelper;
+        title: string;
     };
     onDragStart(node: any, $event: MouseEvent): void;
     onDrag($event: MouseEvent): void;

@@ -1,5 +1,8 @@
 import { OnInit } from '@angular/core';
+import { Location } from '@angular/common';
+import * as shape from 'd3-shape';
 export declare class AppComponent implements OnInit {
+    location: Location;
     version: string;
     theme: string;
     chartType: string;
@@ -12,6 +15,9 @@ export declare class AppComponent implements OnInit {
     dateData: any[];
     dateDataWithRange: any[];
     calendarData: any[];
+    statusData: any[];
+    sparklineData: any[];
+    timelineFilterBarData: any[];
     graph: {
         links: any[];
         nodes: any[];
@@ -28,6 +34,7 @@ export declare class AppComponent implements OnInit {
     showYAxis: boolean;
     gradient: boolean;
     showLegend: boolean;
+    legendTitle: string;
     showXAxisLabel: boolean;
     tooltipDisabled: boolean;
     xAxisLabel: string;
@@ -40,6 +47,26 @@ export declare class AppComponent implements OnInit {
     roundDomains: boolean;
     maxRadius: number;
     minRadius: number;
+    showSeriesOnHover: boolean;
+    roundEdges: boolean;
+    curves: {
+        Basis: shape.CurveFactory;
+        'Basis Closed': shape.CurveFactory;
+        Bundle: shape.CurveBundleFactory;
+        Cardinal: shape.CurveCardinalFactory;
+        'Cardinal Closed': shape.CurveCardinalFactory;
+        'Catmull Rom': shape.CurveCatmullRomFactory;
+        'Catmull Rom Closed': shape.CurveCatmullRomFactory;
+        Linear: shape.CurveFactory;
+        'Linear Closed': shape.CurveFactory;
+        'Monotone X': shape.CurveFactory;
+        'Monotone Y': shape.CurveFactory;
+        Natural: shape.CurveFactory;
+        Step: shape.CurveFactory;
+        'Step After': shape.CurveFactory;
+        'Step Before': shape.CurveFactory;
+        default: shape.CurveFactory;
+    };
     _yDomainMin: number;
     _yDomainMax: number;
     yDomainMin: any;
@@ -49,6 +76,9 @@ export declare class AppComponent implements OnInit {
     curveType: string;
     curve: any;
     interpolationTypes: string[];
+    closedCurveType: string;
+    closedCurve: any;
+    closedInterpolationTypes: string[];
     colorSets: any;
     colorScheme: any;
     schemeType: string;
@@ -76,7 +106,37 @@ export declare class AppComponent implements OnInit {
     gaugeShowAxis: boolean;
     gaugeValue: number;
     gaugePreviousValue: number;
-    constructor();
+    barChart: any[];
+    lineChartSeries: any[];
+    lineChartScheme: {
+        name: string;
+        selectable: boolean;
+        group: string;
+        domain: string[];
+    };
+    comboBarScheme: {
+        name: string;
+        selectable: boolean;
+        group: string;
+        domain: string[];
+    };
+    showRightYAxisLabel: boolean;
+    yAxisLabelRight: string;
+    totalSales: number;
+    salePrice: number;
+    personnelCost: number;
+    mathText: string;
+    mathFunction: (o: any) => any;
+    treemap: any[];
+    treemapPath: any[];
+    sumBy: string;
+    showRefLines: boolean;
+    showRefLabels: boolean;
+    refLines: {
+        value: number;
+        name: string;
+    }[];
+    constructor(location: Location);
     readonly dateDataWithOrWithoutRange: any[];
     ngOnInit(): void;
     updateData(): void;
@@ -86,11 +146,47 @@ export declare class AppComponent implements OnInit {
     toggleDomainLimits(event: any): void;
     selectChart(chartSelector: any): void;
     select(data: any): void;
-    setInterpolationType(curveType: any): void;
+    getInterpolationType(curveType: any): any;
     setYAxisTransform(transformType: any): void;
     setColorScheme(name: any): void;
     onLegendLabelClick(entry: any): void;
     getCalendarData(): any[];
     calendarAxisTickFormatting(mondayString: string): string;
     calendarTooltipText(c: any): string;
+    pieTooltipText({data}: {
+        data: any;
+    }): string;
+    dollarValueFormat(c: any): string;
+    getStatusData(): {
+        name: string;
+        value: any;
+    }[];
+    calcStatusData(sales?: any, dur?: any): {
+        name: string;
+        value: any;
+    }[];
+    statusValueFormat(c: any): string;
+    currencyFormatting(c: any): string;
+    gdpLabelFormatting(c: any): string;
+    statusLabelFormat(c: any): string;
+    generatePlotData(): {
+        name: string;
+        series: any;
+    }[];
+    getFunction(text?: string): any;
+    treemapProcess(sumBy?: string): void;
+    treemapSelect(item: any): void;
+    getFlag(country: any): any;
+    onFilter(event: any): void;
+    yLeftAxisScale(min: any, max: any): {
+        min: string;
+        max: string;
+    };
+    yRightAxisScale(min: any, max: any): {
+        min: string;
+        max: string;
+    };
+    yLeftTickFormat(data: any): string;
+    yRightTickFormat(data: any): string;
+    onSelect(event: any): void;
 }

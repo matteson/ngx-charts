@@ -2,7 +2,9 @@ import {
   Component,
   Input,
   ViewEncapsulation,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ContentChild,
+  TemplateRef
 } from '@angular/core';
 import { scaleBand } from 'd3-scale';
 
@@ -52,6 +54,7 @@ import { ColorHelper } from '../common/color.helper';
           [data]="results"
           [gradient]="gradient"
           [tooltipDisabled]="tooltipDisabled"
+          [tooltipTemplate]="tooltipTemplate"
           [tooltipText]="tooltipText"
           (select)="onClick($event)"
         />
@@ -65,6 +68,7 @@ import { ColorHelper } from '../common/color.helper';
 export class HeatMapComponent extends BaseChartComponent {
 
   @Input() legend;
+  @Input() legendTitle: string = 'Legend';
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
@@ -79,6 +83,8 @@ export class HeatMapComponent extends BaseChartComponent {
   @Input() yAxisTickFormatting: any;
   @Input() tooltipDisabled: boolean = false;
   @Input() tooltipText: any;
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   xDomain: any[];
@@ -283,7 +289,8 @@ export class HeatMapComponent extends BaseChartComponent {
     return {
       scaleType: this.scaleType,
       domain: this.valueDomain,
-      colors: this.scaleType === 'ordinal' ? this.colors : this.colors.scale
+      colors: this.scaleType === 'ordinal' ? this.colors : this.colors.scale,
+      title: this.scaleType === 'ordinal' ? this.legendTitle : undefined
     };
   }
 

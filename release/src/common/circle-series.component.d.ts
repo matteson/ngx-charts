@@ -1,6 +1,6 @@
-import { SimpleChanges, EventEmitter, OnChanges } from '@angular/core';
+import { SimpleChanges, EventEmitter, OnChanges, OnInit, TemplateRef } from '@angular/core';
 import { LocationStrategy } from '@angular/common';
-export declare class CircleSeriesComponent implements OnChanges {
+export declare class CircleSeriesComponent implements OnChanges, OnInit {
     private location;
     data: any;
     type: string;
@@ -11,12 +11,18 @@ export declare class CircleSeriesComponent implements OnChanges {
     visibleValue: any;
     activeEntries: any[];
     tooltipDisabled: boolean;
+    tooltipTemplate: TemplateRef<any>;
     select: EventEmitter<{}>;
     activate: EventEmitter<{}>;
     deactivate: EventEmitter<{}>;
     areaPath: any;
     circles: any[];
+    circle: any;
+    barVisible: boolean;
+    gradientId: string;
+    gradientFill: string;
     constructor(location: LocationStrategy);
+    ngOnInit(): void;
     ngOnChanges(changes: SimpleChanges): void;
     update(): void;
     getCircles(): any[];
@@ -35,7 +41,6 @@ export declare class CircleSeriesComponent implements OnChanges {
     }[];
     onClick(value: any, label: any): void;
     isActive(entry: any): boolean;
-    isVisible(circle: any): boolean;
-    activateCircle(circle: any): void;
-    deactivateCircle(circle: any): void;
+    activateCircle(): void;
+    deactivateCircle(): void;
 }

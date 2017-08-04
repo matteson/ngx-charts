@@ -4,7 +4,8 @@ import {
   Output,
   EventEmitter,
   OnChanges,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  TemplateRef
  } from '@angular/core';
  import {
    trigger,
@@ -18,7 +19,8 @@ import { formatLabel } from '../common/label.helper';
 @Component({
   selector: 'g[ngx-charts-series-vertical]',
   template: `
-    <svg:g ngx-charts-bar *ngFor="let bar of bars; trackBy: trackBy"
+    <svg:g ngx-charts-bar
+      *ngFor="let bar of bars; trackBy: trackBy"
       [@animationState]="'active'"
       [width]="bar.width"
       [height]="bar.height"
@@ -36,20 +38,21 @@ import { formatLabel } from '../common/label.helper';
       (deactivate)="deactivate.emit($event)"
       ngx-tooltip
       [tooltipDisabled]="tooltipDisabled"
-      [tooltipPlacement]="'top'"
-      [tooltipType]="'tooltip'"
-      [tooltipTitle]="bar.tooltipText">
+      [tooltipPlacement]="tooltipPlacement"
+      [tooltipType]="tooltipType"
+      [tooltipTitle]="tooltipTemplate ? undefined : bar.tooltipText"
+      [tooltipTemplate]="tooltipTemplate"
+      [tooltipContext]="bar.data">
     </svg:g>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('animationState', [
-      transition('* => void', [
+      transition(':leave', [
         style({
-          opacity: 1,
-          transform: '*',
+          opacity: 1
         }),
-        animate(500, style({opacity: 0, transform: 'scale(0)'}))
+        animate(500, style({opacity: 0}))
       ])
     ])
   ]
@@ -62,15 +65,20 @@ export class SeriesVerticalComponent implements OnChanges {
   @Input() xScale;
   @Input() yScale;
   @Input() colors;
-  @Input() tooltipDisabled: boolean = false;
   @Input() gradient: boolean;
   @Input() activeEntries: any[];
   @Input() seriesName: string;
+  @Input() tooltipDisabled: boolean = false;
+  @Input() tooltipTemplate: TemplateRef<any>;
+  @Input() roundEdges: boolean;
 
   @Output() select = new EventEmitter();
   @Output() activate = new EventEmitter();
   @Output() deactivate = new EventEmitter();
 
+  tooltipPlacement: string;
+  tooltipType: string;
+  
   bars: any;
   x: any;
   y: any;
@@ -80,6 +88,7 @@ export class SeriesVerticalComponent implements OnChanges {
   }
 
   update(): void {
+    this.updateTooltipSettings();
     let width;
     if (this.series.length) {
       width = this.xScale.bandwidth();
@@ -95,7 +104,7 @@ export class SeriesVerticalComponent implements OnChanges {
       let value = d.value;
       const label = d.name;
       const formattedLabel = formatLabel(label);
-      const roundEdges = this.type === 'standard';
+      const roundEdges = this.roundEdges;
 
       const bar: any = {
         value,
@@ -164,15 +173,21 @@ export class SeriesVerticalComponent implements OnChanges {
       let tooltipLabel = formattedLabel;
       if (this.seriesName) {
         tooltipLabel = `${this.seriesName} • ${formattedLabel}`;
+        bar.data.series = this.seriesName;
       }
 
-      bar.tooltipText = `
+      bar.tooltipText = this.tooltipDisabled ? undefined : `
         <span class="tooltip-label">${tooltipLabel}</span>
         <span class="tooltip-val">${value.toLocaleString()}</span>
       `;
 
       return bar;
     });
+  }
+
+  updateTooltipSettings() {
+    this.tooltipPlacement = this.tooltipDisabled ? undefined : 'top';
+    this.tooltipType =  this.tooltipDisabled ? undefined : 'tooltip';
   }
 
   isActive(entry): boolean {

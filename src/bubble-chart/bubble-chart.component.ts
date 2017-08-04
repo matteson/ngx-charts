@@ -1,4 +1,21 @@
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  HostListener,
+  ViewEncapsulation,
+  ChangeDetectionStrategy,
+  ContentChild,
+  TemplateRef
+} from '@angular/core';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
 import { scaleLinear } from 'd3-scale';
 
 import { BaseChartComponent } from '../common/base-chart.component';
@@ -53,7 +70,7 @@ import { getScaleType, getDomain, getScale } from './bubble-chart.utils';
           style="fill: rgb(255, 0, 0); opacity: 0; cursor: 'auto';"
           (mouseenter)="deactivateAll()"
         />
-        <svg:g *ngFor="let series of data">
+        <svg:g *ngFor="let series of data; trackBy:trackBy" [@animationState]="'active'">
           <svg:g ngx-charts-bubble-series
             [xScale]="xScale"
             [yScale]="yScale"
@@ -66,19 +83,34 @@ import { getScaleType, getDomain, getScale } from './bubble-chart.utils';
             [data]="series"
             [activeEntries]="activeEntries"
             [tooltipDisabled]="tooltipDisabled"
+            [tooltipTemplate]="tooltipTemplate"
             (select)="onClick($event, series)"
             (activate)="onActivate($event)"
             (deactivate)="onDeactivate($event)" />
         </svg:g>
       </svg:g>
-    </ngx-charts-chart>`
+    </ngx-charts-chart>
+  `,
+  styleUrls: ['../common/base-chart.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  animations: [
+    trigger('animationState', [
+      transition(':leave', [
+        style({
+          opacity: 1,
+        }),
+        animate(500, style({
+          opacity: 0
+        }))
+      ])
+    ])
+  ]
 })
 export class BubbleChartComponent extends BaseChartComponent {
-  @Input() view: number[] = [400, 400];
-
-  @Input() results;
   @Input() showGridLines: boolean = true;
   @Input() legend = false;
+  @Input() legendTitle: string = 'Legend';
   @Input() xAxis: boolean = true;
   @Input() yAxis: boolean = true;
   @Input() showXAxisLabel: boolean;
@@ -97,6 +129,8 @@ export class BubbleChartComponent extends BaseChartComponent {
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
+
+  @ContentChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;
   colors: ColorHelper;
@@ -199,7 +233,10 @@ export class BubbleChartComponent extends BaseChartComponent {
       }
     }
 
-    return [yMin, xMax - this.dims.width, yMax - this.dims.height, xMin];
+    xMax = Math.max(xMax - this.dims.width, 0);
+    yMax = Math.max(yMax - this.dims.height, 0);
+
+    return [yMin, xMax, yMax, xMin];
   }
 
   setScales() {
@@ -228,12 +265,14 @@ export class BubbleChartComponent extends BaseChartComponent {
       scaleType: this.schemeType,
       colors: undefined,
       domain: [],
-      position: this.legendPosition
+      position: this.legendPosition,
+      title: undefined
     };
 
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.seriesDomain;
       opts.colors = this.colors;
+      opts.title = this.legendTitle;
     } else {
       opts.domain = this.rDomain;
       opts.colors = this.colors.scale;
@@ -326,5 +365,9 @@ export class BubbleChartComponent extends BaseChartComponent {
       this.deactivate.emit({ value: entry, entries: [] });
     }
     this.activeEntries = [];
+  }
+
+  trackBy(index, item): string {
+    return item.name;
   }
 }
