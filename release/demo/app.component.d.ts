@@ -49,6 +49,11 @@ export declare class AppComponent implements OnInit {
     minRadius: number;
     showSeriesOnHover: boolean;
     roundEdges: boolean;
+    animations: boolean;
+    xScaleMin: any;
+    xScaleMax: any;
+    yScaleMin: number;
+    yScaleMax: number;
     curves: {
         Basis: shape.CurveFactory;
         'Basis Closed': shape.CurveFactory;
