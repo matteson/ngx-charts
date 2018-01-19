@@ -11,13 +11,13 @@ import {
 } from '@angular/core';
 import {
   trigger,
-  state,
   style,
   animate,
   transition
 } from '@angular/animations';
 import { PathLocationStrategy } from '@angular/common';
 import { scaleLinear, scaleLog, scaleTime, scalePoint } from 'd3-scale';
+
 import { curveLinear } from 'd3-shape';
 
 import { calculateViewDimensions, ViewDimensions } from '../common/view-dimensions.helper';
@@ -33,6 +33,7 @@ import { id } from '../utils/id';
       [showLegend]="legend"
       [legendOptions]="legendOptions"
       [activeEntries]="activeEntries"
+      [animations]="animations"
       (legendLabelClick)="onClick($event)"
       (legendLabelActivate)="onActivate($event)"
       (legendLabelDeactivate)="onDeactivate($event)">
@@ -80,6 +81,7 @@ import { id } from '../utils/id';
               [curve]="curve"
               [rangeFillOpacity]="rangeFillOpacity"
               [hasRange]="hasRange"
+              [animations]="animations"
             />
           </svg:g>
 
@@ -135,6 +137,7 @@ import { id } from '../utils/id';
             [scaleType]="xScaleType"
             [curve]="curve"
             [hasRange]="hasRange"
+            [animations]="animations"
           />
         </svg:g>
       </svg:g>
@@ -185,6 +188,10 @@ export class LineChartComponent extends BaseChartComponent {
   @Input() showRefLines: boolean = false;
   @Input() referenceLines: any;
   @Input() showRefLabels: boolean = true;
+  @Input() xScaleMin: any;
+  @Input() xScaleMax: any;
+  @Input() yScaleMin: number;
+  @Input() yScaleMax: number;
 
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
@@ -261,12 +268,8 @@ export class LineChartComponent extends BaseChartComponent {
 
     this.transform = `translate(${ this.dims.xOffset } , ${ this.margin[0] })`;
 
-    const pageUrl = this.location instanceof PathLocationStrategy
-      ? this.location.path()
-      : '';
-
     this.clipPathId = 'clip' + id().toString();
-    this.clipPath = `url(${pageUrl}#${this.clipPathId})`;
+    this.clipPath = `url(#${this.clipPathId})`;
   }
 
   updateTimeline(): void {
@@ -283,7 +286,7 @@ export class LineChartComponent extends BaseChartComponent {
     let values = [];
 
     for (const results of this.results) {
-      for (const d of results.series){
+      for (const d of results.series) {
         if (!values.includes(d.name)) {
           values.push(d.name);
         }
@@ -314,7 +317,8 @@ export class LineChartComponent extends BaseChartComponent {
       const min = Math.min(...values);
       const max = Math.max(...values);
       domain = [min, max];
-      this.xSet = [...values].sort();
+      // Use compare function to sort numbers numerically
+      this.xSet = [...values].sort((a, b) => (a - b));
     } else {
       domain = values;
       this.xSet = values;
@@ -327,7 +331,7 @@ export class LineChartComponent extends BaseChartComponent {
     this.yScaleType = this.getYScaleType();
     const domain = [];
     for (const results of this.results) {
-      for (const d of results.series){
+      for (const d of results.series) {
         if (domain.indexOf(d.value) < 0) {
           domain.push(d.value);
         }
@@ -346,20 +350,20 @@ export class LineChartComponent extends BaseChartComponent {
       }
     }
 
-    let min = Math.min(...domain);
-    let max = Math.max(...domain);
+    const values = [...domain];
     if (!this.autoScale) {
-      min = Math.min(0, min);
+      values.push(0);
     }
 
-    if ( typeof(this.yDomainMin) != "undefined") {
-      min = this.yDomainMin;
-    }
-    if ( typeof(this.yDomainMax) != "undefined") {
-      max = this.yDomainMax;
-    }
+    const min = this.yScaleMin
+      ? this.yScaleMin
+      : Math.min(...values);
 
-      return [min, max];
+    const max = this.yScaleMax
+      ? this.yScaleMax
+      : Math.max(...values);
+
+    return [min, max];
   }
 
   getSeriesDomain(): any[] {
